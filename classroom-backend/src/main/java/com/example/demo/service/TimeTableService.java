@@ -20,19 +20,28 @@ public class TimeTableService {
     private final TimeTableRepository timeTableRepository;
     private final UserRepository userRepository;
 
-    // 시간표 저장
     public void saveTimeTable(TimeTableRequest request) {
         User teacher = userRepository.findById(request.getTeacherId())
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
+        // 🧹 요일별로 기존 데이터 삭제
+        List<String> days = request.getTimetable().stream()
+                .map(TimeTableDto::getDayOfWeek)
+                .distinct()
+                .toList();
+        for (String day : days) {
+            timeTableRepository.deleteByTeacherIdAndDayOfWeek(request.getTeacherId(), day);
+        }
+
+        // ⏱ 새로 저장
         List<TimeTable> list = request.getTimetable().stream().map(dto -> {
             TimeTable tt = new TimeTable();
             tt.setPeriod(dto.getPeriod());
             tt.setSubject(dto.getSubject());
+            tt.setDayOfWeek(dto.getDayOfWeek());
 
-            // ✅ 문자열을 LocalTime으로 파싱
             if (dto.getStart() != null && !dto.getStart().isEmpty()) {
                 tt.setStartTime(LocalTime.parse(dto.getStart(), formatter));
             }
@@ -47,7 +56,6 @@ public class TimeTableService {
         timeTableRepository.saveAll(list);
     }
 
-    // 시간표 불러오기
     public List<TimeTableDto> getTimeTableByTeacher(Long teacherId) {
         List<TimeTable> list = timeTableRepository.findByTeacherId(teacherId);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -56,6 +64,7 @@ public class TimeTableService {
             TimeTableDto dto = new TimeTableDto();
             dto.setPeriod(tt.getPeriod());
             dto.setSubject(tt.getSubject());
+            dto.setDayOfWeek(tt.getDayOfWeek());
 
             if (tt.getStartTime() != null) {
                 dto.setStart(tt.getStartTime().format(formatter));

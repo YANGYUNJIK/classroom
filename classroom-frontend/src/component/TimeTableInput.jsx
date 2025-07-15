@@ -4,12 +4,22 @@ import axios from "axios";
 
 export default function TimeTableInput() {
   const [rows, setRows] = useState([
-    { period: "1교시", start: "", end: "", subject: "" },
+    { period: "1교시", start: "", end: "", subject: "", dayOfWeek: "월" },
   ]);
+  const [allRows, setAllRows] = useState([]);
+  const [selectedDay, setSelectedDay] = useState("월");
+  const [hasTimeTable, setHasTimeTable] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ 시간표 불러오기
+  // ✅ 요일 클릭 시 해당 요일 시간표만 표시
+  const handleDayClick = (day) => {
+    setSelectedDay(day);
+    const filtered = allRows.filter((r) => r.dayOfWeek === day);
+    setRows(filtered);
+  };
+
+  // ✅ 시간표 불러오기 (전체 요일 포함)
   useEffect(() => {
     const fetchTimeTable = async () => {
       try {
@@ -18,14 +28,11 @@ export default function TimeTableInput() {
         );
         const data = res.data;
 
-        const formatted = data.map((item) => ({
-          period: item.period,
-          subject: item.subject,
-          start: item.start || "",
-          end: item.end || "",
-        }));
+        setAllRows(data);
+        setHasTimeTable(data.length > 0);
 
-        setRows(formatted);
+        const filtered = data.filter((r) => r.dayOfWeek === selectedDay);
+        setRows(filtered);
       } catch (err) {
         console.error("⛔ 시간표 불러오기 실패", err);
       }
@@ -34,37 +41,73 @@ export default function TimeTableInput() {
     fetchTimeTable();
   }, [user.id]);
 
+  // ✅ 교시 추가
   const addRow = () => {
-    const nextPeriod = `${rows.length + 1}교시`;
-    setRows([...rows, { period: nextPeriod, start: "", end: "", subject: "" }]);
+    const currentDayRows = allRows.filter((r) => r.dayOfWeek === selectedDay);
+    const nextPeriod = `${currentDayRows.length + 1}교시`;
+
+    const newRow = {
+      period: nextPeriod,
+      start: "",
+      end: "",
+      subject: "",
+      dayOfWeek: selectedDay,
+    };
+
+    const updated = [...currentDayRows, newRow];
+    const newAllRows = allRows
+      .filter((r) => r.dayOfWeek !== selectedDay)
+      .concat(updated);
+
+    setAllRows(newAllRows);
+    setRows(updated);
   };
 
+  // ✅ 셀 수정
   const handleChange = (index, field, value) => {
     const updated = [...rows];
     updated[index][field] = value;
     setRows(updated);
+
+    const newAllRows = allRows.map((row) =>
+      row.dayOfWeek === selectedDay && row.period === rows[index].period
+        ? { ...row, [field]: value }
+        : row
+    );
+
+    console.log("📦 전송할 시간표 payload:", payload);
+
+    setAllRows(newAllRows);
   };
 
+  // ✅ 시간표 저장 (등록 or 수정 모두 포함)
   const handleSubmit = async () => {
     try {
+      // id나 teacherId 없이 전송
+      const cleaned = allRows.map(
+        ({ period, subject, start, end, dayOfWeek }) => ({
+          period,
+          subject,
+          start,
+          end,
+          dayOfWeek,
+        })
+      );
+
       const payload = {
         teacherId: user.id,
-        timetable: rows.map((row) => ({
-          period: row.period,
-          subject: row.subject,
-          start: row.start,
-          end: row.end,
-        })),
+        timetable: cleaned,
       };
 
       await axios.post("http://localhost:8080/api/timetable", payload);
-      alert("✅ 시간표 등록 성공!");
+      alert(hasTimeTable ? "✅ 시간표 수정 완료!" : "✅ 시간표 등록 완료!");
     } catch (err) {
-      console.error("시간표 등록 실패:", err);
-      alert("시간표 등록 실패");
+      console.error("시간표 저장 실패:", err);
+      alert("시간표 저장 실패");
     }
   };
 
+  // ✅ 엑셀 업로드
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -74,22 +117,68 @@ export default function TimeTableInput() {
       const data = new Uint8Array(evt.target.result);
       const wb = XLSX.read(data, { type: "array" });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const parsed = XLSX.utils.sheet_to_json(ws);
+      const parsed = XLSX.utils.sheet_to_json(ws, { defval: "" });
 
-      const newRows = parsed.map((row, idx) => ({
-        period: row["교시"] || `${idx + 1}교시`,
-        start: row["시작 시간"] || "",
-        end: row["끝 시간"] || "",
-        subject: row["과목"] || "",
-      }));
-      setRows(newRows);
+      const dayMap = { 월: [], 화: [], 수: [], 목: [], 금: [] };
+
+      parsed.forEach((row) => {
+        const start = row["시작 시간"];
+        const end = row["끝 시간"];
+
+        ["월", "화", "수", "목", "금"].forEach((day) => {
+          if (row[day]) {
+            dayMap[day].push({
+              subject: row[day],
+              start,
+              end,
+            });
+          }
+        });
+      });
+
+      // 전체 시간표 구조화
+      const all = Object.entries(dayMap).flatMap(([day, lessons]) =>
+        lessons.map((lesson, idx) => ({
+          period: `${idx + 1}교시`,
+          start: lesson.start,
+          end: lesson.end,
+          subject: lesson.subject,
+          dayOfWeek: day,
+        }))
+      );
+
+      setAllRows(all);
+      setHasTimeTable(all.length > 0);
+
+      const filtered = all.filter((r) => r.dayOfWeek === selectedDay);
+      setRows(filtered);
     };
+
     reader.readAsArrayBuffer(file);
   };
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold mb-2">🗓 시간표 직접 입력</h2>
+
+      {/* 요일 선택 */}
+      <div className="flex items-center space-x-2 mb-2">
+        {["월", "화", "수", "목", "금", "토", "일"].map((day) => (
+          <button
+            key={day}
+            onClick={() => handleDayClick(day)}
+            className={`px-3 py-1 rounded border ${
+              selectedDay === day
+                ? "bg-blue-500 text-white"
+                : "bg-white text-black hover:bg-gray-200"
+            }`}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+
+      {/* 시간표 테이블 */}
       <table className="w-full table-auto border">
         <thead>
           <tr className="bg-gray-200 text-center">
@@ -132,6 +221,7 @@ export default function TimeTableInput() {
         </tbody>
       </table>
 
+      {/* 버튼들 */}
       <div className="flex space-x-4">
         <button
           onClick={addRow}
@@ -141,9 +231,13 @@ export default function TimeTableInput() {
         </button>
         <button
           onClick={handleSubmit}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className={`${
+            hasTimeTable
+              ? "bg-yellow-500 hover:bg-yellow-600"
+              : "bg-green-500 hover:bg-green-600"
+          } text-white px-4 py-2 rounded`}
         >
-          ✅ 제출
+          {hasTimeTable ? "✏️ 수정" : "✅ 제출"}
         </button>
         <label className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 cursor-pointer">
           📥 엑셀 업로드

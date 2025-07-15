@@ -6,10 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TimeTableDto {
+    private String dayOfWeek; // "월", "화", ...
     private String period;
     private String subject;
-    
-    private String start; // "HH:mm" 형식
-    private String end;   // "HH:mm" 형식
+    private String start; // "HH:mm"
+    private String end;   // "HH:mm"
 }
-

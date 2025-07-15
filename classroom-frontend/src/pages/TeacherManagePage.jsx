@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TimeTableInput from "../component/TimeTableInput";
+import EvaluationBoard from "../component/EvaluationBoard";
+import LearningBoard from "../component/LearningBoard";
+import SchoolScheduleCard from "../component/SchoolScheduleCard";
 
 export default function TeacherManagePage() {
   const navigate = useNavigate();
@@ -17,17 +20,18 @@ export default function TeacherManagePage() {
 
   const renderContent = () => {
     switch (selectedMenu) {
+      case "우리반 현황":
+        return <div>✅ 우리반 현황이 여기에 들어옵니다.</div>;
       case "시간표 등록":
         return <TimeTableInput />;
-      // return <div>🗓 시간표 등록 기능이 여기에 들어옵니다.</div>;
       case "출석 현황":
         return <div>✅ 출석 확인 기능이 여기에 들어옵니다.</div>;
       case "평가 관리":
-        return <div>🧪 평가 관리 기능이 여기에 들어옵니다.</div>;
+        return <EvaluationBoard />;
       case "학습 관리":
-        return <div>📘 학습 관리 기능이 여기에 들어옵니다.</div>;
-      case "행사 관리":
-        return <div>🎉 학교 행사 등록 기능이 여기에 들어옵니다.</div>;
+        return <LearningBoard />;
+      case "일정 관리":
+        return <SchoolScheduleCard />;
       default:
         return <div>메뉴를 선택하세요.</div>;
     }
@@ -59,11 +63,12 @@ export default function TeacherManagePage() {
         {/* 왼쪽 탭 */}
         <div className="w-48 bg-white shadow-md p-4">
           {[
+            "우리반 현황",
             "시간표 등록",
             "출석 현황",
             "평가 관리",
             "학습 관리",
-            "행사 관리",
+            "일정 관리",
           ].map((menu) => (
             <button
               key={menu}
