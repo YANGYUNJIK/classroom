@@ -11,18 +11,22 @@ export default function AttendanceBoard() {
     dayjs().day()
   ];
 
-  console.log("✅ 현재 로그인된 사용자:", user);
-
   // ✅ 시간표 불러오기
   useEffect(() => {
     const fetchTimeTable = async () => {
-      const res = await axios.get(
-        `http://localhost:8080/api/timetable/${user.id}`
-      );
-      const todayRows = res.data.filter(
-        (row) => row.dayOfWeek === todayDayOfWeek
-      );
-      setTimeTable(todayRows);
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/timetable/${user.id}`
+        );
+
+        const todayRows = res.data.filter(
+          (row) => row.dayOfWeek === todayDayOfWeek
+        );
+
+        setTimeTable(todayRows);
+      } catch (err) {
+        console.error("⛔ 시간표 불러오기 실패:", err);
+      }
     };
 
     fetchTimeTable();
@@ -33,11 +37,15 @@ export default function AttendanceBoard() {
     const fetchAttendance = async () => {
       const result = {};
       for (let row of timeTable) {
-        const res = await axios.get(
-          `http://localhost:8080/api/attendance/${user.id}/today`,
-          { params: { period: row.period } }
-        );
-        result[row.period] = res.data;
+        try {
+          const res = await axios.get(
+            `http://localhost:8080/api/attendance/${user.id}/today`,
+            { params: { period: row.period } }
+          );
+          result[row.period] = res.data;
+        } catch (err) {
+          console.error(`⛔ ${row.period} 출석 데이터 불러오기 실패:`, err);
+        }
       }
       setAttendanceData(result);
     };
@@ -54,6 +62,10 @@ export default function AttendanceBoard() {
       </h2>
 
       <div className="space-y-4">
+        {timeTable.length === 0 && (
+          <p className="text-gray-500">오늘 등록된 시간표가 없습니다.</p>
+        )}
+
         {timeTable.map((row) => (
           <div key={row.period} className="border p-4 rounded shadow">
             <h3 className="font-semibold">

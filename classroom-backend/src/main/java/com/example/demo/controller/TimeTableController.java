@@ -5,9 +5,8 @@ import com.example.demo.dto.TimeTableRequest;
 import com.example.demo.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/timetable")
@@ -26,6 +25,5 @@ public class TimeTableController {
     @GetMapping("/{teacherId}")
     public List<TimeTableDto> getTimeTable(@PathVariable Long teacherId) {
         return timeTableService.getTimeTableByTeacher(teacherId);
-    }  
-
+    }
 }

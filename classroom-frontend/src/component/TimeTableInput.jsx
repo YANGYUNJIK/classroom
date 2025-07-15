@@ -174,7 +174,7 @@ export default function TimeTableInput() {
 
       {/* 요일 선택 */}
       <div className="flex items-center space-x-2 mb-2">
-        {["월", "화", "수", "목", "금", "토", "일"].map((day) => (
+        {["월", "화", "수", "목", "금"].map((day) => (
           <button
             key={day}
             onClick={() => handleDayClick(day)}
