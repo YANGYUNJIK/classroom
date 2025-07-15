@@ -37,4 +37,17 @@ public class TimeTableController {
     ) {
         return timeTableService.getCurrentPeriod(school, grade, classNum, dayOfWeek, nowTime);
     }
+
+    @GetMapping("/current")
+    public TimeTableDto getCurrentPeriodForStudent(
+            @RequestParam String school,
+            @RequestParam int grade,
+            @RequestParam int classNum,
+            @RequestParam String dayOfWeek,
+            @RequestParam String time
+    ) {
+        return timeTableService.getCurrentPeriodDto(school, grade, classNum, dayOfWeek, time)
+        .orElse(new TimeTableDto());
+    }
+
 }

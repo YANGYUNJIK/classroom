@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -102,5 +103,26 @@ public class TimeTableService {
         return null; // 현재 시간에 해당하는 교시 없음
     }
 
-    
+    public Optional<TimeTableDto> getCurrentPeriodDto(String school, int grade, int classNum, String dayOfWeek, String currentTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime now = LocalTime.parse(currentTime, formatter);
+
+        List<TimeTable> list = timeTableRepository.findAllByTeacher_SchoolAndTeacher_GradeAndTeacher_ClassNumAndDayOfWeek(
+                school, grade, classNum, dayOfWeek
+        );
+
+        for (TimeTable tt : list) {
+            if (tt.getStartTime() != null && tt.getEndTime() != null) {
+                if (!now.isBefore(tt.getStartTime()) && !now.isAfter(tt.getEndTime())) {
+                    TimeTableDto dto = new TimeTableDto();
+                    dto.setPeriod(tt.getPeriod());
+                    dto.setSubject(tt.getSubject());
+                    return Optional.of(dto);
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
 }
