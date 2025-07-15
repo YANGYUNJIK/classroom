@@ -29,25 +29,27 @@ export default function StudentMainPage() {
   }, []);
 
   const fetchCurrentPeriod = async () => {
-    try {
-      const todayDayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][
-        dayjs().day()
-      ];
-      const now = dayjs().format("HH:mm");
+    const nowTime = dayjs().format("HH:mm");
+    const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
 
+    // ✅ 여기 추가
+    console.log("📤 현재 요일:", dayOfWeek);
+    console.log("📤 요청 시간:", nowTime);
+    console.log("📤 유저 정보:", user.school, user.grade, user.classNum);
+
+    try {
       const res = await axios.get(
-        `http://localhost:8080/api/timetable/period`,
+        "http://localhost:8080/api/timetable/period",
         {
           params: {
             school: user.school,
-            grade: Number(user.grade), // 👈 꼭 숫자 변환
-            classNum: Number(user.classNum), // 👈 꼭 숫자 변환
-            dayOfWeek: todayDayOfWeek,
-            nowTime: now,
+            grade: user.grade,
+            classNum: user.classNum,
+            dayOfWeek,
+            nowTime,
           },
         }
       );
-
       setCurrentPeriod(res.data);
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);

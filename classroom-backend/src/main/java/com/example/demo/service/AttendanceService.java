@@ -23,8 +23,11 @@ public class AttendanceService {
         User student = userRepository.findByLoginId(request.getStudentLoginId())
                 .orElseThrow(() -> new RuntimeException("학생 없음"));
 
+        // ✅ 프론트에서 넘어온 날짜를 문자열로 받아서 LocalDate로 변환
+        LocalDate targetDate = LocalDate.parse(request.getDate());
+
         boolean exists = attendanceRepository.existsByStudentIdAndDateAndPeriod(
-                student.getId(), LocalDate.now(), request.getPeriod());
+                student.getId(), targetDate, request.getPeriod());
 
         if (exists) {
             throw new RuntimeException("이미 출석 체크됨");
@@ -34,7 +37,7 @@ public class AttendanceService {
                 .orElseThrow(() -> new RuntimeException("교사 없음"));
 
         Attendance record = new Attendance();
-        record.setDate(LocalDate.now());
+        record.setDate(targetDate);  // ✅ 정확한 날짜로 설정
         record.setDayOfWeek(request.getDayOfWeek());
         record.setPeriod(request.getPeriod());
         record.setStudent(student);

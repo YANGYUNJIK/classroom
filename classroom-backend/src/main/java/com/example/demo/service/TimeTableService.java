@@ -85,6 +85,22 @@ public class TimeTableService {
         }).toList();
     }
 
-    
+    public String getCurrentPeriod(String school, int grade, int classNum, String dayOfWeek, String nowTime) {
+        List<TimeTable> list = timeTableRepository
+            .findAllByTeacher_SchoolAndTeacher_GradeAndTeacher_ClassNumAndDayOfWeek(school, grade, classNum, dayOfWeek);
+
+        LocalTime now = LocalTime.parse(nowTime);
+
+        for (TimeTable tt : list) {
+            if (tt.getStartTime() != null && tt.getEndTime() != null) {
+                if (!now.isBefore(tt.getStartTime()) && !now.isAfter(tt.getEndTime())) {
+                    return tt.getPeriod();
+                }
+            }
+        }
+
+        return null; // 현재 시간에 해당하는 교시 없음
+    }
+
     
 }

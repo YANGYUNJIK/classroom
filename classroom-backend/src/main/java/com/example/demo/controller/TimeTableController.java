@@ -27,5 +27,14 @@ public class TimeTableController {
         return timeTableService.getTimeTableByTeacher(teacherId);
     }
 
-    
+    @GetMapping("/period")
+    public String getCurrentPeriod(
+            @RequestParam String school,
+            @RequestParam int grade,
+            @RequestParam int classNum,
+            @RequestParam String dayOfWeek,
+            @RequestParam String nowTime
+    ) {
+        return timeTableService.getCurrentPeriod(school, grade, classNum, dayOfWeek, nowTime);
+    }
 }
