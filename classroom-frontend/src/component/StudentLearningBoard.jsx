@@ -1,4 +1,3 @@
-// src/component/StudentLearningBoard.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -18,6 +17,7 @@ export default function StudentLearningBoard() {
         const res = await axios.get("http://localhost:8080/learnings/search", {
           params: studentInfo,
         });
+
         const sorted = res.data.sort((a, b) =>
           dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
         );
@@ -41,7 +41,8 @@ export default function StudentLearningBoard() {
           <p>📌 범위: {item.range}</p>
           <p className="mt-1 text-gray-800">{item.content}</p>
           <p className="text-sm text-gray-500 mt-2">
-            마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
+            마감일:{" "}
+            {item.deadline ? dayjs(item.deadline).format("YYYY-MM-DD") : "없음"}
           </p>
         </div>
       ))}

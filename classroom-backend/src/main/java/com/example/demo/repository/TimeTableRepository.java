@@ -9,4 +9,5 @@ public interface TimeTableRepository extends JpaRepository<TimeTable, Long> {
     List<TimeTable> findByTeacherId(Long teacherId);
     void deleteByTeacherId(Long teacherId);
     void deleteByTeacherIdAndDayOfWeek(Long teacherId, String dayOfWeek);
+    
 }

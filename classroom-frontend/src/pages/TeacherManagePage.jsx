@@ -25,17 +25,17 @@ export default function TeacherManagePage() {
       case "우리반 현황":
         return <ClassStatus user={user} />;
       case "시간표 등록":
-        return <TimeTableInput />;
+        return <TimeTableInput user={user} />;
       case "출석 현황":
-        return <AttendanceBoard />;
+        return <AttendanceBoard user={user} />;
       case "평가 관리":
-        return <EvaluationBoard />;
+        return <EvaluationBoard user={user} />;
       case "학습 관리":
-        return <LearningBoard />;
+        return <LearningBoard user={user} />;
       case "상담 관리":
         return <div> 상담이 올겁니다.</div>;
       case "일정 관리":
-        return <SchoolScheduleCard />;
+        return <SchoolScheduleCard user={user} />;
       default:
         return <div>메뉴를 선택하세요.</div>;
     }

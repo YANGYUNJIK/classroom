@@ -26,4 +26,6 @@ public class TimeTableController {
     public List<TimeTableDto> getTimeTable(@PathVariable Long teacherId) {
         return timeTableService.getTimeTableByTeacher(teacherId);
     }
+
+    
 }

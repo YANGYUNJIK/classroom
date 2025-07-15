@@ -2,7 +2,6 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -20,12 +19,13 @@ public class Learning {
     private String title;
     private String subject;
     private String goal;
-    private String range;
+    private String rangeText;
 
     @Column(length = 1000)
     private String content;
 
-    private LocalDate deadline;
+    @Column(nullable = true)
+    private LocalDate deadline;  // ✅ String → LocalDate 로 변경
 
     private String school;
     private Integer grade;
