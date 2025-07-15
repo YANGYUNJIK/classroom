@@ -4,6 +4,7 @@ import TimeTableInput from "../component/TimeTableInput";
 import EvaluationBoard from "../component/EvaluationBoard";
 import LearningBoard from "../component/LearningBoard";
 import SchoolScheduleCard from "../component/SchoolScheduleCard";
+import AttendanceBoard from "../component/AttendanceBoard";
 
 export default function TeacherManagePage() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function TeacherManagePage() {
       case "시간표 등록":
         return <TimeTableInput />;
       case "출석 현황":
-        return <div>✅ 출석 확인 기능이 여기에 들어옵니다.</div>;
+        return <AttendanceBoard />;
       case "평가 관리":
         return <EvaluationBoard />;
       case "학습 관리":

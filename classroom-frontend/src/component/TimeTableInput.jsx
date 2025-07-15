@@ -65,19 +65,28 @@ export default function TimeTableInput() {
 
   // ✅ 셀 수정
   const handleChange = (index, field, value) => {
-    const updated = [...rows];
-    updated[index][field] = value;
-    setRows(updated);
+    const updatedRows = [...rows];
+    updatedRows[index][field] = value;
+    setRows(updatedRows);
 
-    const newAllRows = allRows.map((row) =>
-      row.dayOfWeek === selectedDay && row.period === rows[index].period
-        ? { ...row, [field]: value }
-        : row
-    );
+    // 정확히 현재 selectedDay에 해당하는 index 위치를 찾아 allRows도 수정
+    const updatedAllRows = [...allRows];
+    let count = 0;
 
-    console.log("📦 전송할 시간표 payload:", payload);
+    for (let i = 0; i < updatedAllRows.length; i++) {
+      if (updatedAllRows[i].dayOfWeek === selectedDay) {
+        if (count === index) {
+          updatedAllRows[i] = {
+            ...updatedAllRows[i],
+            [field]: value,
+          };
+          break;
+        }
+        count++;
+      }
+    }
 
-    setAllRows(newAllRows);
+    setAllRows(updatedAllRows);
   };
 
   // ✅ 시간표 저장 (등록 or 수정 모두 포함)
@@ -98,6 +107,8 @@ export default function TimeTableInput() {
         teacherId: user.id,
         timetable: cleaned,
       };
+
+      console.log("📦 전송할 시간표 payload:", payload);
 
       await axios.post("http://localhost:8080/api/timetable", payload);
       alert(hasTimeTable ? "✅ 시간표 수정 완료!" : "✅ 시간표 등록 완료!");
