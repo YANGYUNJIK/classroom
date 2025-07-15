@@ -9,9 +9,12 @@ import ClassStatus from "../component/ClassStatus";
 
 export default function TeacherManagePage() {
   const navigate = useNavigate();
-  const [selectedMenu, setSelectedMenu] = useState("시간표 등록");
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  // ✅ localStorage에서 선택된 메뉴 불러오기
+  const savedMenu = localStorage.getItem("selectedMenu") || "시간표 등록";
+  const [selectedMenu, setSelectedMenu] = useState(savedMenu);
 
   useEffect(() => {
     if (!user || user.role !== "teacher") {
@@ -82,7 +85,10 @@ export default function TeacherManagePage() {
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 hover:bg-gray-200"
               }`}
-              onClick={() => setSelectedMenu(menu)}
+              onClick={() => {
+                setSelectedMenu(menu);
+                localStorage.setItem("selectedMenu", menu); // ✅ 선택한 탭 저장
+              }}
             >
               {menu}
             </button>
