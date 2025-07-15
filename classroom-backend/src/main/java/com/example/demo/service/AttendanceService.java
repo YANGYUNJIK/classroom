@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.AttendanceRequest;
+import com.example.demo.dto.AttendanceRequestDto;
 import com.example.demo.dto.AttendanceResponse;
 import com.example.demo.entity.Attendance;
 import com.example.demo.entity.User;
@@ -19,17 +19,16 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
 
-    public void saveAttendance(AttendanceRequest request) {
-        // 이미 출석한 경우 중복 방지
+    public void saveAttendance(AttendanceRequestDto request) {
+        User student = userRepository.findByLoginId(request.getStudentLoginId())
+                .orElseThrow(() -> new RuntimeException("학생 없음"));
+
         boolean exists = attendanceRepository.existsByStudentIdAndDateAndPeriod(
-                request.getStudentId(), LocalDate.now(), request.getPeriod());
+                student.getId(), LocalDate.now(), request.getPeriod());
 
         if (exists) {
             throw new RuntimeException("이미 출석 체크됨");
         }
-
-        User student = userRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("학생 없음"));
 
         User teacher = userRepository.findById(request.getTeacherId())
                 .orElseThrow(() -> new RuntimeException("교사 없음"));
@@ -62,5 +61,4 @@ public class AttendanceService {
                 })
                 .toList();
     }
-
 }

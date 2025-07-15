@@ -24,4 +24,7 @@ public class User {
     private Boolean isHomeroom;
     private String password;
     private String phoneNumber;
+
+    // ✅ 추가
+    private String loginId;
 }

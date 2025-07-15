@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByPhoneNumber(String phoneNumber);
-     List<User> findByRoleAndSchoolAndGradeAndClassNumOrderByNumberAsc(
+    List<User> findByRoleAndSchoolAndGradeAndClassNumOrderByNumberAsc(
         String role, String school, Integer grade, Integer classNum
     );
+    Optional<User> findByLoginId(String loginId);  // ✅ 이 줄 추가
 }
 

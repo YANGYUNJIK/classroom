@@ -49,7 +49,10 @@ export default function StudentMainPage() {
     try {
       await axios.post(`http://localhost:8080/api/attendance`, {
         studentLoginId: user.loginId,
-        periodId: currentPeriod.id,
+        teacherId: currentPeriod.teacherId,
+        period: currentPeriod.period,
+        dayOfWeek: dayjs().format("ddd"), // 월, 화, 수 등
+        date: dayjs().format("YYYY-MM-DD"),
       });
       setChecked(true);
       alert("출석 체크 완료!");

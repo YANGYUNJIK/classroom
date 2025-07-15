@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AttendanceRequest;
+import com.example.demo.dto.AttendanceRequestDto;
 import com.example.demo.dto.AttendanceResponse;
 import com.example.demo.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +17,10 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @PostMapping
-    public void recordAttendance(@RequestBody AttendanceRequest request) {
+    public void recordAttendance(@RequestBody AttendanceRequestDto request) {
         attendanceService.saveAttendance(request);
     }
 
-    // ✅ CORS 허용 (프론트 localhost:5173 → 이 API만 허용)
     @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping("/{teacherId}/today")
     public List<AttendanceResponse> getTodayAttendance(
@@ -31,3 +30,4 @@ public class AttendanceController {
         return attendanceService.getTodayAttendanceByTeacher(teacherId, period);
     }
 }
+
