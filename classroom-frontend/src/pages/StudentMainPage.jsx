@@ -109,6 +109,16 @@ export default function StudentMainPage() {
         </button>
 
         <button
+          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-red-600"
+          onClick={() => {
+            localStorage.removeItem("user");
+            navigate("/student/manage"); // ✅ 절대 경로로 수정
+          }}
+        >
+          들어가기
+        </button>
+
+        <button
           className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
           onClick={() => {
             localStorage.removeItem("user");

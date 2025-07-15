@@ -30,7 +30,7 @@ export default function LoginPage() {
       if (user.role === "student") {
         navigate("/student/main");
       } else if (user.role === "teacher") {
-        navigate("/teacher/main");
+        navigate("/teacher/manage");
       } else {
         alert("역할 정보가 올바르지 않습니다.");
       }

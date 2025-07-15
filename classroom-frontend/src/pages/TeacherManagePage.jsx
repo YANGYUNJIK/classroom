@@ -32,6 +32,8 @@ export default function TeacherManagePage() {
         return <EvaluationBoard />;
       case "학습 관리":
         return <LearningBoard />;
+      case "상담 관리":
+        return <div> 상담이 올겁니다.</div>;
       case "일정 관리":
         return <SchoolScheduleCard />;
       default:
@@ -70,6 +72,7 @@ export default function TeacherManagePage() {
             "출석 현황",
             "평가 관리",
             "학습 관리",
+            "상담 관리",
             "일정 관리",
           ].map((menu) => (
             <button
