@@ -3,11 +3,17 @@ import * as XLSX from "xlsx";
 import axios from "axios";
 
 export default function TimeTableInput() {
+  const getTodayDay = () => {
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const today = new Date().getDay(); // 0~6
+    return days[today] || "월";
+  };
+
   const [rows, setRows] = useState([
     { period: "1교시", start: "", end: "", subject: "", dayOfWeek: "월" },
   ]);
   const [allRows, setAllRows] = useState([]);
-  const [selectedDay, setSelectedDay] = useState("월");
+  const [selectedDay, setSelectedDay] = useState(getTodayDay());
   const [hasTimeTable, setHasTimeTable] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));

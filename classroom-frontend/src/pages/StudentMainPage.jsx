@@ -13,14 +13,24 @@ export default function StudentMainPage() {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       navigate("/login");
-    } else {
-      fetchCurrentPeriod();
+      return;
     }
+
+    // 최초 1회
+    fetchCurrentPeriod();
+
+    // 1분마다 현재 교시 정보 업데이트
+    const interval = setInterval(() => {
+      fetchCurrentPeriod();
+    }, 180000); // 1분 = 60,000ms
+
+    // 페이지 벗어날 때 interval 제거
+    return () => clearInterval(interval);
   }, []);
 
   const fetchCurrentPeriod = async () => {
     try {
-      const today = dayjs().format("dddd"); // 예: Monday
+      const today = dayjs().format("ddd"); // 예: 월, 화, 수
       const now = dayjs().format("HH:mm"); // 예: 13:20
       const res = await axios.get(
         `http://localhost:8080/api/timetable/period`,
