@@ -5,6 +5,7 @@ import EvaluationBoard from "../component/EvaluationBoard";
 import LearningBoard from "../component/LearningBoard";
 import SchoolScheduleCard from "../component/SchoolScheduleCard";
 import AttendanceBoard from "../component/AttendanceBoard";
+import ClassStatus from "../component/ClassStatus";
 
 export default function TeacherManagePage() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function TeacherManagePage() {
   const renderContent = () => {
     switch (selectedMenu) {
       case "우리반 현황":
-        return <div>✅ 우리반 현황이 여기에 들어옵니다.</div>;
+        return <ClassStatus user={user} />;
       case "시간표 등록":
         return <TimeTableInput />;
       case "출석 현황":

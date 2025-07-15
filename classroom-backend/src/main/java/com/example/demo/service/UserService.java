@@ -4,6 +4,9 @@ import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,6 +38,24 @@ public class UserService {
         }
         return null;
     }
+
+    public List<User> getStudentsByClass(String school, Integer grade, Integer classNum) {
+        return userRepository.findByRoleAndSchoolAndGradeAndClassNumOrderByNumberAsc(
+            "student", school, grade, classNum
+        );
+    }
+
+    public void updateUser(Long id, UserDto dto) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("해당 학생을 찾을 수 없습니다."));
+
+        user.setName(dto.getName());
+        user.setNumber(dto.getNumber());
+        user.setPhoneNumber(dto.getPhoneNumber());
+
+        userRepository.save(user);
+    }
+
 
 
 }

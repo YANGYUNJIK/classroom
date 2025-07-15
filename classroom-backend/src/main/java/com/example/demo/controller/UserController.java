@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -31,6 +33,26 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패"); // 401 반환
         }
+    }
+
+    // ✅ 우리반 학생 목록 조회 API
+    @GetMapping("/students")
+    public List<User> getStudentsByClass(
+            @RequestParam String school,
+            @RequestParam Integer grade,
+            @RequestParam Integer classNum
+    ) {
+        return userService.getStudentsByClass(school, grade, classNum);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserDto dto
+    ) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.ok("수정 완료");
     }
 
 }

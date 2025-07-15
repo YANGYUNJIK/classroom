@@ -11,6 +11,8 @@ export default function AttendanceBoard() {
     dayjs().day()
   ];
 
+  console.log("✅ 현재 로그인된 사용자:", user);
+
   // ✅ 시간표 불러오기
   useEffect(() => {
     const fetchTimeTable = async () => {

@@ -170,7 +170,7 @@ export default function TimeTableInput() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold mb-2">🗓 시간표 직접 입력</h2>
+      <h2 className="text-xl font-bold mb-2">🗓 시간표</h2>
 
       {/* 요일 선택 */}
       <div className="flex items-center space-x-2 mb-2">
