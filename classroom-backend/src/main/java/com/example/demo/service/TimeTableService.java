@@ -8,6 +8,7 @@ import com.example.demo.repository.TimeTableRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // ✅ 추가
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +22,7 @@ public class TimeTableService {
     private final TimeTableRepository timeTableRepository;
     private final UserRepository userRepository;
 
+    @Transactional  // ✅ 트랜잭션 처리 추가
     public void saveTimeTable(TimeTableRequest request) {
         User teacher = userRepository.findById(request.getTeacherId())
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));
