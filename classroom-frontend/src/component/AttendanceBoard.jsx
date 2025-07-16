@@ -69,25 +69,29 @@ export default function AttendanceBoard() {
         )}
 
         {timeTable.map((row) => (
-          <div key={row.period} className="border p-4 rounded shadow">
-            <h3 className="font-semibold">
+          <div
+            key={row.period}
+            onClick={() => {
+              setSelectedPeriod(row.period);
+              setShowModal(true);
+            }}
+            className="bg-white border-l-4 border-green-500 p-4 shadow rounded transition transform hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+          >
+            <h3 className="font-semibold text-lg mb-1">
               {row.period} | {row.subject} ({row.start} ~ {row.end})
             </h3>
 
-            <p
-              className="text-sm text-gray-600 cursor-pointer hover:underline"
-              onClick={() => {
-                setSelectedPeriod(row.period);
-                setShowModal(true);
-              }}
-            >
+            <p className="text-sm text-gray-600">
               출석 인원:{" "}
-              {
-                (attendanceData[row.period] || []).filter(
-                  (a) => a.status === "출석"
-                ).length
-              }
-              명
+              <b className="text-green-700">
+                {
+                  (attendanceData[row.period] || []).filter(
+                    (a) => a.status === "출석"
+                  ).length
+                }
+                명
+              </b>{" "}
+              (클릭 시 보기)
             </p>
           </div>
         ))}
@@ -101,17 +105,20 @@ export default function AttendanceBoard() {
               {selectedPeriod}교시 출석 명단
             </h3>
 
-            <ul className="list-disc ml-5 mb-4">
-              {(attendanceData[selectedPeriod] || []).map((a) => (
-                <li key={a.studentId}>
-                  {a.studentName} - {a.status}
-                </li>
-              ))}
+            <ul className="list-disc pl-5 space-y-1 max-h-60 overflow-y-auto">
+              {(attendanceData[selectedPeriod] || [])
+                .filter((a) => a.status === "출석")
+                .sort((a, b) => a.studentNumber - b.studentNumber)
+                .map((a) => (
+                  <li key={a.studentId}>
+                    {a.studentNumber}번 {a.studentName} - {a.status}
+                  </li>
+                ))}
             </ul>
 
             <button
               onClick={() => setShowModal(false)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               닫기
             </button>

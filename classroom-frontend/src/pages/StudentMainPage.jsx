@@ -114,31 +114,37 @@ export default function StudentMainPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-6 bg-gray-50">
+    <div className="min-h-screen flex flex-col justify-between px-6 py-10 bg-gray-50">
+      {/* 상단 인삿말 */}
       <div>
-        <h1 className="text-2xl font-bold mb-4">학생 메인 페이지</h1>
-        <p className="text-lg">
-          안녕하세요, <b>{user?.name}</b>님!
+        <h1 className="text-3xl font-bold mb-2 text-blue-600">
+          🎓 학생 메인 페이지
+        </h1>
+        <p className="text-lg mb-2">
+          안녕하세요,{" "}
+          <span className="font-semibold text-gray-800">{user?.name}</span>님!
         </p>
-        <p className="text-sm mt-2 text-gray-700">
-          학교: {user?.school} <br />
-          학년: {user?.grade} / 반: {user?.classNum} / 번호: {user?.number}
-        </p>
+        <div className="text-sm text-gray-600 mb-4">
+          학교: <b>{user?.school}</b> / 학년: <b>{user?.grade}</b> / 반:{" "}
+          <b>{user?.classNum}</b> / 번호: <b>{user?.number}</b>
+        </div>
 
-        {currentPeriod ? (
-          <div className="mt-4 text-green-700 font-semibold">
-            현재 수업: {currentPeriod.period} ({currentSubject})
-          </div>
-        ) : (
-          <div className="mt-4 text-gray-500">
-            현재 수업 중인 교시가 없습니다.
-          </div>
-        )}
+        {/* 현재 수업 안내 박스 */}
+        <div className="bg-white border-l-4 border-green-500 shadow p-4 rounded">
+          {currentPeriod ? (
+            <p className="text-green-700 font-medium">
+              현재 수업: <b>{currentPeriod.period}</b> ({currentSubject})
+            </p>
+          ) : (
+            <p className="text-gray-500">현재 수업 중인 교시가 없습니다.</p>
+          )}
+        </div>
       </div>
 
-      <div className="w-full flex justify-center mt-8 space-x-4">
+      {/* 버튼 영역 */}
+      <div className="mt-10 flex flex-col space-y-4">
         <button
-          className={`px-6 py-2 rounded text-white ${
+          className={`w-full py-3 rounded text-white font-semibold ${
             checked
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-green-500 hover:bg-green-600"
@@ -150,17 +156,17 @@ export default function StudentMainPage() {
         </button>
 
         <button
-          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+          className="w-full py-3 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold"
           onClick={() => {
             localStorage.removeItem("user");
             navigate("/student/manage");
           }}
         >
-          들어가기
+          들어가기 (평가·학습 안내)
         </button>
 
         <button
-          className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+          className="w-full py-3 rounded bg-red-500 hover:bg-red-600 text-white font-semibold"
           onClick={() => {
             localStorage.removeItem("user");
             navigate("/login");
