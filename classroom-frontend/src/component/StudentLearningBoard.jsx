@@ -5,10 +5,10 @@ import dayjs from "dayjs";
 export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [completedMap, setCompletedMap] = useState({}); // ✅ 완료 상태 저장
+  const [completedMap, setCompletedMap] = useState({});
 
-  // ✅ 로그인 시 저장한 studentInfo 불러오기
   const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
+  const loginId = localStorage.getItem("loginId"); // ✅ loginId 별도 가져오기
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,21 +26,26 @@ export default function StudentLearningBoard() {
         );
         setData(sorted);
 
-        // ✅ 완료 상태 초기화
-        const initialStatus = {};
+        // ✅ 완료 상태 불러오기
+        const statusRes = await axios.get(
+          `http://localhost:8080/api/learning-status/completed/${loginId}`
+        );
+        const completedIds = statusRes.data;
+
+        const map = {};
         sorted.forEach((item) => {
-          initialStatus[item.id] = false;
+          map[item.id] = completedIds.includes(item.id);
         });
-        setCompletedMap(initialStatus);
+        setCompletedMap(map);
       } catch (err) {
         console.error("학습 불러오기 실패:", err);
       }
     };
 
-    if (studentInfo) {
+    if (studentInfo && loginId) {
       fetchData();
     }
-  }, [studentInfo]);
+  }, [studentInfo, loginId]);
 
   const handleCardClick = (item) => {
     if (selected?.id === item.id) {
@@ -62,7 +67,7 @@ export default function StudentLearningBoard() {
             onClick={() => handleCardClick(item)}
             className="relative min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
           >
-            {/* ✅ 완료 상태 배지 */}
+            {/* 완료 상태 배지 */}
             <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm backdrop-blur-sm">
               {completedMap[item.id] ? "완료" : "미완료"}
             </div>
@@ -95,7 +100,7 @@ export default function StudentLearningBoard() {
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
-            {/* ✅ 학습 완료 버튼 */}
+            {/* 학습 완료 버튼 */}
             {!completedMap[selected.id] && (
               <button
                 onClick={async () => {
@@ -103,7 +108,7 @@ export default function StudentLearningBoard() {
                     await axios.post(
                       "http://localhost:8080/api/learning-status/mark",
                       {
-                        loginId: studentInfo.loginId,
+                        loginId: loginId,
                         learningId: selected.id,
                       }
                     );
