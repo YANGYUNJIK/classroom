@@ -26,8 +26,18 @@ export default function LoginPage() {
       // ✅ loginId 따로 저장 (출석 체크용)
       localStorage.setItem("loginId", user.loginId);
 
-      // ✅ 전체 user 객체도 저장
+      // ✅ 전체 user 객체 저장
       localStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ studentInfo 별도 저장 (school, grade, classNum)
+      localStorage.setItem(
+        "studentInfo",
+        JSON.stringify({
+          school: user.school,
+          grade: user.grade,
+          classNum: user.classNum,
+        })
+      );
 
       // ✅ 역할에 따라 페이지 이동
       if (user.role === "student") {

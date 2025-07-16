@@ -4,13 +4,10 @@ import dayjs from "dayjs";
 
 export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
-  const [selected, setSelected] = useState(null); // 모달 내용
+  const [selected, setSelected] = useState(null);
 
-  const studentInfo = {
-    school: "경북소마",
-    grade: 1,
-    classNum: 1,
-  };
+  // ✅ 로그인 시 저장한 studentInfo 불러오기
+  const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,7 +15,7 @@ export default function StudentLearningBoard() {
         const res = await axios.get("http://localhost:8080/learnings/search", {
           params: studentInfo,
         });
-        console.log("✅ 서버 응답:", res.data); // ✅ 추가
+        console.log("✅ 서버 응답:", res.data);
         const sorted = res.data.sort((a, b) =>
           dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
         );
@@ -28,12 +25,14 @@ export default function StudentLearningBoard() {
       }
     };
 
-    fetchData();
-  }, []);
+    if (studentInfo) {
+      fetchData();
+    }
+  }, [studentInfo]);
 
   const handleCardClick = (item) => {
     if (selected?.id === item.id) {
-      setSelected(null); // 같은 카드 → 닫기
+      setSelected(null);
     } else {
       setSelected(item);
     }
