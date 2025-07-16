@@ -100,7 +100,7 @@ export default function StudentMainPage() {
 
         {currentPeriod ? (
           <div className="mt-4 text-green-700 font-semibold">
-            현재 수업: {currentPeriod.period}교시 ({currentSubject})
+            현재 수업: {currentPeriod.period} ({currentSubject})
           </div>
         ) : (
           <div className="mt-4 text-gray-500">
