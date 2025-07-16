@@ -33,8 +33,14 @@ public class LearningController {
             @RequestParam Integer grade,
             @RequestParam Integer classNum
     ) {
-        return learningService.findByClass(school, grade, classNum);
+        System.out.println("학습 검색 요청 → school: " + school + ", grade: " + grade + ", classNum: " + classNum);
+
+        List<Learning> result = learningService.findByClass(school, grade, classNum);
+        System.out.println("검색 결과 개수: " + result.size());
+
+        return result;
     }
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
