@@ -11,7 +11,7 @@ export default function StudentMainPage() {
   const [currentSubject, setCurrentSubject] = useState(null);
   const [checked, setChecked] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
-
+  //
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
