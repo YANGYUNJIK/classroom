@@ -116,7 +116,15 @@ export default function StudentMainPage() {
   return (
     <div className="min-h-screen flex flex-col justify-between px-6 py-10 bg-gray-50">
       {/* 상단 인삿말 */}
-      <div>
+      <div className="relative">
+        {/* 우측 상단 회원정보 수정 버튼 */}
+        <button
+          onClick={() => navigate("/student/edit")}
+          className="absolute top-0 right-0 text-sm text-blue-600 underline hover:text-blue-800"
+        >
+          회원정보 수정
+        </button>
+
         <h1 className="text-3xl font-bold mb-2 text-blue-600">
           🎓 학생 메인 페이지
         </h1>

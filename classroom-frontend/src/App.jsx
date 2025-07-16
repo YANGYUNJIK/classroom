@@ -6,6 +6,7 @@ import StudentManagePage from "./pages/StudentManagePage";
 import TeacherMainPage from "./pages/TeacherMainPage";
 import TeacherManagePage from "./pages/TeacherManagePage";
 import SignupPage from "./pages/SignupPage";
+import StudentEditPage from "./pages/StudentEditPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/student/manage" element={<StudentManagePage />} />
         <Route path="/teacher/main" element={<TeacherMainPage />} />
         <Route path="/teacher/manage" element={<TeacherManagePage />} />
+        <Route path="/student/edit" element={<StudentEditPage />} />
       </Routes>
     </BrowserRouter>
   );
