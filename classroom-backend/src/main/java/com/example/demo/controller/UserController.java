@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
@@ -29,11 +30,23 @@ public class UserController {
     public ResponseEntity<?> login(@RequestParam String phoneNumber, @RequestParam String password) {
         User user = userService.login(phoneNumber, password);
         if (user != null) {
-            return ResponseEntity.ok(user); // 200 OK + user 정보 반환
+            // ✅ 응답용 DTO로 변환
+            LoginResponse response = new LoginResponse();
+            response.setId(user.getId());
+            response.setLoginId(user.getLoginId());
+            response.setName(user.getName());
+            response.setRole(user.getRole());
+            response.setSchool(user.getSchool());
+            response.setGrade(user.getGrade());
+            response.setClassNum(user.getClassNum());
+            response.setNumber(user.getNumber());
+
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패"); // 401 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
         }
     }
+
 
     // ✅ 우리반 학생 목록 조회 API
     @GetMapping("/students")

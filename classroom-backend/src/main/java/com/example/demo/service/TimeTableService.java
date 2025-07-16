@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -85,6 +86,48 @@ public class TimeTableService {
         }).toList();
     }
 
-    
-    
+    public String getCurrentPeriod(String school, int grade, int classNum, String dayOfWeek, String nowTime) {
+        List<TimeTable> list = timeTableRepository
+            .findAllByTeacher_SchoolAndTeacher_GradeAndTeacher_ClassNumAndDayOfWeek(school, grade, classNum, dayOfWeek);
+
+        LocalTime now = LocalTime.parse(nowTime);
+
+        for (TimeTable tt : list) {
+            if (tt.getStartTime() != null && tt.getEndTime() != null) {
+                if (!now.isBefore(tt.getStartTime()) && !now.isAfter(tt.getEndTime())) {
+                    return tt.getPeriod();
+                }
+            }
+        }
+
+        return null; // 현재 시간에 해당하는 교시 없음
+    }
+
+    public Optional<TimeTableDto> getCurrentPeriodDto(String school, int grade, int classNum, String dayOfWeek, String currentTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime now = LocalTime.parse(currentTime, formatter);
+
+        List<TimeTable> list = timeTableRepository.findAllByTeacher_SchoolAndTeacher_GradeAndTeacher_ClassNumAndDayOfWeek(
+                school, grade, classNum, dayOfWeek
+        );
+
+        for (TimeTable tt : list) {
+            if (tt.getStartTime() != null && tt.getEndTime() != null) {
+                if (!now.isBefore(tt.getStartTime()) && !now.isAfter(tt.getEndTime())) {
+                    TimeTableDto dto = new TimeTableDto();
+                    dto.setPeriod(tt.getPeriod());
+                    dto.setSubject(tt.getSubject());
+                    dto.setTeacherId(tt.getTeacher() != null ? tt.getTeacher().getId() : null); // ✅ 추가
+                    dto.setStart(tt.getStartTime().format(formatter)); // ✅ 추가
+                    dto.setEnd(tt.getEndTime().format(formatter));     // ✅ 추가
+                    dto.setDayOfWeek(tt.getDayOfWeek());               // ✅ 추가
+                    return Optional.of(dto);
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
+
 }

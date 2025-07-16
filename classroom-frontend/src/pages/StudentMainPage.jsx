@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 
+const BASE_URL = "http://localhost:8080";
+
 export default function StudentMainPage() {
   const navigate = useNavigate();
   const [currentPeriod, setCurrentPeriod] = useState(null);
+  const [currentSubject, setCurrentSubject] = useState(null);
   const [checked, setChecked] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -16,58 +19,65 @@ export default function StudentMainPage() {
       return;
     }
 
-    // 최초 1회
     fetchCurrentPeriod();
 
-    // 1분마다 현재 교시 정보 업데이트
     const interval = setInterval(() => {
       fetchCurrentPeriod();
-    }, 180000); // 1분 = 60,000ms
+    }, 180000); // 3분마다 갱신
 
-    // 페이지 벗어날 때 interval 제거
     return () => clearInterval(interval);
   }, []);
 
   const fetchCurrentPeriod = async () => {
+    const nowTime = dayjs().format("HH:mm");
+    const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
+
+    console.log("📤 현재 요일:", dayOfWeek);
+    console.log("📤 요청 시간:", nowTime);
+    console.log("📤 유저 정보:", user.school, user.grade, user.classNum);
+
     try {
-      const todayDayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][
-        dayjs().day()
-      ];
-      const now = dayjs().format("HH:mm");
+      const res = await axios.get(`${BASE_URL}/api/timetable/current`, {
+        params: {
+          school: user.school,
+          grade: user.grade,
+          classNum: user.classNum,
+          dayOfWeek,
+          time: nowTime,
+        },
+      });
 
-      const res = await axios.get(
-        `http://localhost:8080/api/timetable/period`,
-        {
-          params: {
-            school: user.school,
-            grade: Number(user.grade), // 👈 꼭 숫자 변환
-            classNum: Number(user.classNum), // 👈 꼭 숫자 변환
-            dayOfWeek: todayDayOfWeek,
-            nowTime: now,
-          },
-        }
-      );
-
+      // ✅ 전체 응답을 currentPeriod로 저장
       setCurrentPeriod(res.data);
+      setCurrentSubject(res.data.subject || null);
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);
     }
   };
 
   const handleAttendance = async () => {
+    const loginId = localStorage.getItem("loginId");
+    console.log("✅ 로그인 ID 확인:", loginId);
+    console.log("🕒 currentPeriod 값:", currentPeriod);
+
     if (!currentPeriod) {
       alert("현재 수업 시간이 아닙니다.");
       return;
     }
 
     try {
-      await axios.post(`http://localhost:8080/api/attendance`, {
-        studentLoginId: user.loginId,
+      const requestData = {
+        studentLoginId: loginId,
         teacherId: currentPeriod.teacherId,
         period: currentPeriod.period,
-        dayOfWeek: dayjs().format("ddd"), // 월, 화, 수 등
+        dayOfWeek: dayjs().format("ddd"),
         date: dayjs().format("YYYY-MM-DD"),
-      });
+        status: "출석",
+      };
+
+      console.log("🛰️ 출석 요청 내용:", requestData);
+
+      await axios.post(`${BASE_URL}/api/attendance`, requestData);
       setChecked(true);
       alert("출석 체크 완료!");
     } catch (err) {
@@ -90,7 +100,7 @@ export default function StudentMainPage() {
 
         {currentPeriod ? (
           <div className="mt-4 text-green-700 font-semibold">
-            현재 수업: {currentPeriod.period}교시 ({currentPeriod.subject})
+            현재 수업: {currentPeriod.period} ({currentSubject})
           </div>
         ) : (
           <div className="mt-4 text-gray-500">
@@ -113,10 +123,10 @@ export default function StudentMainPage() {
         </button>
 
         <button
-          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-red-600"
+          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
           onClick={() => {
             localStorage.removeItem("user");
-            navigate("/student/manage"); // ✅ 절대 경로로 수정
+            navigate("/student/manage");
           }}
         >
           들어가기

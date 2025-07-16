@@ -11,4 +11,5 @@ public class AttendanceRequestDto {
     private String period;
     private String dayOfWeek;
     private String status;
+    private String date;  // ✅ 추가: "2025-07-15" 같은 문자열 날짜
 }
