@@ -6,10 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AttendanceRequestDto {
-    private String studentLoginId;  // 기존 studentId → loginId로 변경
+    private String studentLoginId;  // ex: "3-2-17"
     private Long teacherId;
-    private String period;
-    private String dayOfWeek;
-    private String status;
-    private String date;  // ✅ 추가: "2025-07-15" 같은 문자열 날짜
+    private String period;          // 반드시 String (e.g., "1", "2")
+    private String dayOfWeek;       // e.g., "월"
+    private String status;          // "출석" or "지각" 등
+    private String date;            // "2025-07-16" 형식
 }

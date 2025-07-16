@@ -11,7 +11,7 @@ export default function StudentMainPage() {
   const [currentSubject, setCurrentSubject] = useState(null);
   const [checked, setChecked] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
-  //
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
@@ -32,10 +32,6 @@ export default function StudentMainPage() {
     const nowTime = dayjs().format("HH:mm");
     const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
 
-    console.log("📤 현재 요일:", dayOfWeek);
-    console.log("📤 요청 시간:", nowTime);
-    console.log("📤 유저 정보:", user.school, user.grade, user.classNum);
-
     try {
       const res = await axios.get(`${BASE_URL}/api/timetable/current`, {
         params: {
@@ -47,18 +43,41 @@ export default function StudentMainPage() {
         },
       });
 
-      // ✅ 전체 응답을 currentPeriod로 저장
       setCurrentPeriod(res.data);
       setCurrentSubject(res.data.subject || null);
+      checkAttendance(); // ✅ 현재 교시 확인 후 출석 상태 체크
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);
     }
   };
 
+  const checkAttendance = async () => {
+    if (!currentPeriod) return;
+
+    const loginId = localStorage.getItem("loginId");
+    const periodNumber = currentPeriod.period.replace(/[^0-9]/g, ""); // "4교시" → "4"
+
+    try {
+      const res = await axios.get(`${BASE_URL}/api/attendance/check`, {
+        params: {
+          studentLoginId: loginId,
+          teacherId: currentPeriod.teacherId,
+          period: periodNumber,
+          dayOfWeek: dayjs().format("ddd"),
+          date: dayjs().format("YYYY-MM-DD"),
+        },
+      });
+
+      if (res.data.status && res.data.status !== "미출석") {
+        setChecked(true);
+      }
+    } catch (err) {
+      console.error("✅ 출석 상태 확인 실패:", err);
+    }
+  };
+
   const handleAttendance = async () => {
     const loginId = localStorage.getItem("loginId");
-    console.log("✅ 로그인 ID 확인:", loginId);
-    console.log("🕒 currentPeriod 값:", currentPeriod);
 
     if (!currentPeriod) {
       alert("현재 수업 시간이 아닙니다.");
@@ -75,14 +94,22 @@ export default function StudentMainPage() {
         status: "출석",
       };
 
-      console.log("🛰️ 출석 요청 내용:", requestData);
-
       await axios.post(`${BASE_URL}/api/attendance`, requestData);
       setChecked(true);
       alert("출석 체크 완료!");
     } catch (err) {
       console.error("출석 체크 실패", err);
-      alert("출석 체크에 실패했습니다.");
+
+      if (
+        err.response &&
+        err.response.data &&
+        err.response.data.message?.includes("이미 출석")
+      ) {
+        alert("이미 출석 체크하셨습니다!");
+        setChecked(true);
+      } else {
+        alert("출석 체크에 실패했습니다.");
+      }
     }
   };
 

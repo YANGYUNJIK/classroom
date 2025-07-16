@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j  // ✅ 로그 어노테이션 추가
+@Slf4j
 public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
@@ -23,7 +23,6 @@ public class AttendanceService {
 
     public void saveAttendance(AttendanceRequestDto request) {
         log.info("💾 출석 저장 시도: {}", request);
-        System.out.println("📥 출석 요청 도착: studentLoginId=" + request.getStudentLoginId());
 
         User student = userRepository.findByLoginId(request.getStudentLoginId())
                 .orElseThrow(() -> {
@@ -31,7 +30,6 @@ public class AttendanceService {
                     return new RuntimeException("학생 없음");
                 });
 
-        // ✅ 프론트에서 넘어온 날짜를 문자열로 받아서 LocalDate로 변환
         LocalDate targetDate = LocalDate.parse(request.getDate());
 
         boolean exists = attendanceRepository.existsByStudentIdAndDateAndPeriod(
@@ -49,7 +47,7 @@ public class AttendanceService {
                 });
 
         Attendance record = new Attendance();
-        record.setDate(targetDate);  // ✅ 정확한 날짜로 설정
+        record.setDate(targetDate);
         record.setDayOfWeek(request.getDayOfWeek());
         record.setPeriod(request.getPeriod());
         record.setStudent(student);
@@ -67,14 +65,20 @@ public class AttendanceService {
 
         return records.stream()
                 .filter(a -> a.getPeriod().equals(period))
-                .map(a -> {
-                    AttendanceResponse dto = new AttendanceResponse();
-                    dto.setStudentId(a.getStudent().getId());
-                    dto.setStudentName(a.getStudent().getName());
-                    dto.setPeriod(a.getPeriod());
-                    dto.setStatus(a.getStatus());
-                    return dto;
-                })
+                .map(AttendanceResponse::new)
                 .toList();
     }
+
+    public AttendanceResponse checkAttendance(String studentLoginId, Long teacherId, Integer period, String dayOfWeek, String date) {
+        LocalDate parsedDate = LocalDate.parse(date); // 🔥 String → LocalDate 변환
+        return attendanceRepository.findByStudentLoginIdAndTeacherIdAndPeriodAndDayOfWeekAndDate(
+                studentLoginId,
+                teacherId,
+                String.valueOf(period),
+                dayOfWeek,
+                parsedDate
+        ).map(AttendanceResponse::new)
+        .orElse(new AttendanceResponse("미출석"));
+    }
+
 }

@@ -4,27 +4,24 @@ import com.example.demo.dto.AttendanceRequestDto;
 import com.example.demo.dto.AttendanceResponse;
 import com.example.demo.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/api/attendance")
-@CrossOrigin(origins = "http://localhost:5173")  // 🔥 이거 추가!
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
     @PostMapping
-    
     public void recordAttendance(@RequestBody AttendanceRequestDto request) {
         System.out.println("📥 출석 요청 도착: " + request);
         attendanceService.saveAttendance(request);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping("/{teacherId}/today")
     public List<AttendanceResponse> getTodayAttendance(
             @PathVariable Long teacherId,
@@ -32,5 +29,15 @@ public class AttendanceController {
     ) {
         return attendanceService.getTodayAttendanceByTeacher(teacherId, period);
     }
-}
 
+    @GetMapping("/check")
+    public AttendanceResponse checkAttendance(
+            @RequestParam String studentLoginId,
+            @RequestParam Long teacherId,
+            @RequestParam Integer period,
+            @RequestParam String dayOfWeek,
+            @RequestParam String date
+    ) {
+        return attendanceService.checkAttendance(studentLoginId, teacherId, period, dayOfWeek, date);
+    }
+}
