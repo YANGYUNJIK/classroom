@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Evaluation;
 import com.example.demo.entity.Learning;
 import com.example.demo.service.LearningService;
 import org.springframework.web.bind.annotation.*;
@@ -27,19 +28,32 @@ public class LearningController {
         return learningService.findAll();
     }
 
+    // @GetMapping("/search")
+    // public List<Learning> getByClass(
+    //         @RequestParam String school,
+    //         @RequestParam Integer grade,
+    //         @RequestParam Integer classNum
+    // ) {
+    //     System.out.println("🟡 학습 검색 요청");
+    //     System.out.println(" → school: " + school + " / grade: " + grade + " / classNum: " + classNum);
+
+    //     List<Learning> result = learningService.findByClass(school, grade, classNum);
+    //     System.out.println(" → 검색 결과 개수: " + result.size());
+    //     result.forEach(l -> System.out.println("   • " + l.getTitle() + " / " + l.getSubject()));
+
+    //     return result;
+    // }
+
+
     @GetMapping("/search")
     public List<Learning> getByClass(
             @RequestParam String school,
             @RequestParam Integer grade,
             @RequestParam Integer classNum
     ) {
-        System.out.println("학습 검색 요청 → school: " + school + ", grade: " + grade + ", classNum: " + classNum);
-
-        List<Learning> result = learningService.findByClass(school, grade, classNum);
-        System.out.println("검색 결과 개수: " + result.size());
-
-        return result;
+        return learningService.findByClass(school, grade, classNum);
     }
+
 
 
     @DeleteMapping("/{id}")
