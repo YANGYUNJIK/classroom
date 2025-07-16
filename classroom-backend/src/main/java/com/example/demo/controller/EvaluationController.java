@@ -42,4 +42,10 @@ public class EvaluationController {
         return evaluationService.save(updated);
     }
 
+
+    @DeleteMapping("/{id}")
+        public void delete(@PathVariable Long id) {
+            evaluationService.delete(id);
+        }
+
 }

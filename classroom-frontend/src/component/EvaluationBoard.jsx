@@ -97,10 +97,12 @@ export default function EvaluationBoard() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/evaluations/${id}`);
+      console.log("삭제 시도 중:", id);
+      await axios.delete(`/evaluations/${id}`);
+      console.log("삭제 성공!");
       setEvaluations((prev) => prev.filter((evalItem) => evalItem.id !== id));
     } catch (error) {
-      console.error("삭제 실패:", error);
+      console.error("삭제 실패:", error.message); // 에러 메시지만 출력
     }
   };
 
