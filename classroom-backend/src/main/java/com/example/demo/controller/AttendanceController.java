@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/attendance")
+@CrossOrigin(origins = "http://localhost:5173")  // 🔥 이거 추가!
 @RequiredArgsConstructor
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
     @PostMapping
+    
     public void recordAttendance(@RequestBody AttendanceRequestDto request) {
+        System.out.println("📥 출석 요청 도착: " + request);
         attendanceService.saveAttendance(request);
     }
 

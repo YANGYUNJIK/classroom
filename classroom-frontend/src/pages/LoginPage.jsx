@@ -23,7 +23,10 @@ export default function LoginPage() {
 
       const user = response.data;
 
-      // ✅ 로그인 성공 → localStorage에 저장
+      // ✅ loginId 따로 저장 (출석 체크용)
+      localStorage.setItem("loginId", user.loginId);
+
+      // ✅ 전체 user 객체도 저장
       localStorage.setItem("user", JSON.stringify(user));
 
       // ✅ 역할에 따라 페이지 이동

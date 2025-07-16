@@ -56,19 +56,29 @@ export default function StudentMainPage() {
   };
 
   const handleAttendance = async () => {
+    const loginId = localStorage.getItem("loginId");
+    console.log("✅ 로그인 ID 확인:", loginId);
+
+    console.log("🕒 currentPeriod 값:", currentPeriod);
+
     if (!currentPeriod) {
       alert("현재 수업 시간이 아닙니다.");
       return;
     }
 
     try {
-      await axios.post(`${BASE_URL}/api/attendance`, {
-        studentLoginId: user.loginId,
-        teacherId: currentPeriod.teacherId, // 여기에 teacherId가 필요하면 백엔드에서 함께 내려줘야 함
+      const requestData = {
+        studentLoginId: loginId, // ✅ 핵심 수정!
+        teacherId: currentPeriod.teacherId,
         period: currentPeriod.period,
         dayOfWeek: dayjs().format("ddd"),
         date: dayjs().format("YYYY-MM-DD"),
-      });
+        status: "출석",
+      };
+
+      console.log("🛰️ 출석 요청 내용:", requestData);
+
+      await axios.post(`${BASE_URL}/api/attendance`, requestData);
       setChecked(true);
       alert("출석 체크 완료!");
     } catch (err) {

@@ -28,6 +28,12 @@ public class UserService {
         user.setPassword(dto.getPassword());
         user.setPhoneNumber(dto.getPhoneNumber());
 
+        // ✅ loginId 자동 생성: 예) id_01077777777
+        if (dto.getPhoneNumber() != null) {
+            String loginId = "id_" + dto.getPhoneNumber().replaceAll("-", "");
+            user.setLoginId(loginId);
+        }
+
         userRepository.save(user);
     }
 
@@ -56,6 +62,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-
-
+    private String generateLoginId(String phoneNumber) {
+        return "id_" + phoneNumber;  // 예: "id_01012345678"
+    }
 }
