@@ -14,15 +14,19 @@ export default function StudentLearningBoard() {
     const fetchData = async () => {
       try {
         const res = await axios.get("http://localhost:8080/learnings/search", {
-          params: studentInfo,
+          params: {
+            school: studentInfo.school,
+            grade: studentInfo.grade,
+            classNum: studentInfo.classNum,
+          },
         });
-        //console.log("✅ 서버 응답:", res.data);
+
         const sorted = res.data.sort((a, b) =>
           dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
         );
         setData(sorted);
 
-        // ✅ 완료 상태 초기화 (초기값 모두 false)
+        // ✅ 완료 상태 초기화
         const initialStatus = {};
         sorted.forEach((item) => {
           initialStatus[item.id] = false;
@@ -92,31 +96,33 @@ export default function StudentLearningBoard() {
             </p>
 
             {/* ✅ 학습 완료 버튼 */}
-            <button
-              onClick={async () => {
-                try {
-                  await axios.post(
-                    "http://localhost:8080/api/learning-status/mark",
-                    {
-                      loginId: studentInfo.loginId,
-                      learningId: selected.id,
-                    }
-                  );
-                  setCompletedMap((prev) => ({
-                    ...prev,
-                    [selected.id]: true,
-                  }));
-                  alert("✅ 완료로 표시했습니다!");
-                  setSelected(null);
-                } catch (err) {
-                  console.error("완료 처리 실패:", err);
-                  alert("❌ 완료 처리에 실패했습니다.");
-                }
-              }}
-              className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              학습 완료
-            </button>
+            {!completedMap[selected.id] && (
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.post(
+                      "http://localhost:8080/api/learning-status/mark",
+                      {
+                        loginId: studentInfo.loginId,
+                        learningId: selected.id,
+                      }
+                    );
+                    setCompletedMap((prev) => ({
+                      ...prev,
+                      [selected.id]: true,
+                    }));
+                    alert("✅ 완료로 표시했습니다!");
+                    setSelected(null);
+                  } catch (err) {
+                    console.error("완료 처리 실패:", err);
+                    alert("❌ 완료 처리에 실패했습니다.");
+                  }
+                }}
+                className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                학습 완료
+              </button>
+            )}
 
             {/* 닫기 버튼 */}
             <button
