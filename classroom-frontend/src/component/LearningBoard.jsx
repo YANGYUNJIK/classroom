@@ -1,71 +1,3 @@
-// import { useState, useEffect } from "react";
-// import dayjs from "dayjs";
-
-// const dummyData = [
-//   {
-//     id: 1,
-//     title: "중간고사 대비 계획",
-//     subject: "국어",
-//     goal: "중간고사 대비 학습 완성",
-//     range: "1~5단원",
-//     content: "요점 정리 및 문제 풀이 중심으로 학습",
-//     deadline: "2025-07-20",
-//   },
-//   {
-//     id: 2,
-//     title: "소단원 마무리 학습",
-//     subject: "수학",
-//     goal: "소단원 개념 정리",
-//     range: "3단원 전체",
-//     content: "개념 복습 후 유사문제 풀이",
-//     deadline: "2025-07-17",
-//   },
-// ];
-
-// export default function LearningBoard() {
-//   const [data, setData] = useState([]);
-
-//   useEffect(() => {
-//     // 추후 백엔드에서 데이터 받아올 예정
-//     const sorted = [...dummyData].sort((a, b) =>
-//       dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
-//     );
-//     setData(sorted);
-//   }, []);
-
-//   return (
-//     <div className="space-y-4">
-//       <h2 className="text-xl font-bold mb-4">📘 학습 관리 게시판</h2>
-//       {data.map((item) => (
-//         <div
-//           key={item.id}
-//           className="bg-white p-4 rounded shadow flex justify-between items-start"
-//         >
-//           <div>
-//             <h3 className="text-lg font-semibold">{item.title}</h3>
-//             <p className="text-sm text-gray-500">{item.subject}</p>
-//             <p className="mt-1">
-//               <strong>목표:</strong> {item.goal}
-//             </p>
-//             <p>
-//               <strong>범위:</strong> {item.range}
-//             </p>
-//             <p>
-//               <strong>내용:</strong> {item.content}
-//             </p>
-//             <p className="text-sm text-gray-600 mt-1">
-//               마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
-//             </p>
-//           </div>
-//           <div className="space-x-2">
-//             <button className="text-blue-500 hover:underline">수정</button>
-//             <button className="text-red-500 hover:underline">삭제</button>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -73,11 +5,14 @@ import axios from "axios";
 export default function LearningBoard() {
   const [learnings, setLearnings] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
   const [newLearning, setNewLearning] = useState({
     title: "",
     subject: "",
     goal: "",
-    range: "",
+    rangeText: "",
     content: "",
     deadline: "",
   });
@@ -121,47 +56,77 @@ export default function LearningBoard() {
         classNum: 1,
       };
 
-      const response = await axios.post("http://localhost:8080/learnings", {
-        ...newLearning,
-        ...teacherInfo,
-      });
+      console.log("제출 데이터:", { ...newLearning, ...teacherInfo });
 
-      const savedLearning = response.data;
+      if (editMode) {
+        await axios.put(`http://localhost:8080/learnings/${editingId}`, {
+          ...newLearning,
+          ...teacherInfo,
+        });
+        setLearnings((prev) =>
+          prev
+            .map((item) =>
+              item.id === editingId ? { ...item, ...newLearning } : item
+            )
+            .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+        );
+      } else {
+        const response = await axios.post("http://localhost:8080/learnings", {
+          ...newLearning,
+          ...teacherInfo,
+        });
+        const savedLearning = response.data;
 
-      setLearnings((prev) =>
-        [...prev, savedLearning].sort(
-          (a, b) => new Date(a.deadline) - new Date(b.deadline)
-        )
-      );
+        setLearnings((prev) =>
+          [...prev, savedLearning].sort(
+            (a, b) => new Date(a.deadline) - new Date(b.deadline)
+          )
+        );
+      }
 
+      // 초기화
       setNewLearning({
         title: "",
         subject: "",
         goal: "",
-        range: "",
+        rangeText: "",
         content: "",
         deadline: "",
       });
       setFormOpen(false);
+      setEditMode(false);
+      setEditingId(null);
     } catch (error) {
       console.error("학습 저장 실패:", error);
     }
   };
 
-  const handleDelete = (id) => {
-    setLearnings((prev) => prev.filter((item) => item.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/learnings/${id}`);
+      setLearnings((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("학습 삭제 실패:", error);
+    }
   };
 
   const handleEdit = (id) => {
     const toEdit = learnings.find((item) => item.id === id);
-    setNewLearning(toEdit);
+    setNewLearning({
+      title: toEdit.title || "",
+      subject: toEdit.subject || "",
+      goal: toEdit.goal || "",
+      rangeText: toEdit.rangeText || "",
+      content: toEdit.content || "",
+      deadline: toEdit.deadline || "",
+    });
+    setEditMode(true);
+    setEditingId(id);
     setFormOpen(true);
-    handleDelete(id);
   };
 
   return (
     <div className="relative">
-      {/* 학습 목록 */}
       <h2 className="text-xl font-bold mb-4">📘 학습 관리 게시판</h2>
       <ul className="space-y-4">
         {learnings.map((item) => (
@@ -173,7 +138,7 @@ export default function LearningBoard() {
               <h3 className="font-bold">{item.title}</h3>
               <p className="text-sm text-gray-600">{item.subject}</p>
               <p className="text-sm">목표: {item.goal}</p>
-              <p className="text-sm">범위: {item.range}</p>
+              <p className="text-sm">범위: {item.rangeText}</p>
               <p className="text-gray-700">{item.content}</p>
               <p className="text-sm text-gray-500">
                 마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
@@ -182,13 +147,13 @@ export default function LearningBoard() {
             <div className="space-x-2">
               <button
                 onClick={() => handleEdit(item.id)}
-                className="text-blue-500"
+                className="text-blue-500 hover:underline"
               >
                 수정
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
-                className="text-red-500"
+                className="text-red-500 hover:underline"
               >
                 삭제
               </button>
@@ -197,11 +162,12 @@ export default function LearningBoard() {
         ))}
       </ul>
 
-      {/* 등록 폼 */}
       {formOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-md mx-auto p-6 rounded shadow-lg">
-            <h4 className="font-semibold mb-4 text-lg">새 학습 등록</h4>
+            <h4 className="font-semibold mb-4 text-lg">
+              {editMode ? "학습 수정" : "새 학습 등록"}
+            </h4>
             <div className="flex flex-col space-y-3">
               <input
                 name="title"
@@ -226,7 +192,7 @@ export default function LearningBoard() {
               />
               <input
                 name="rangeText"
-                value={newLearning.range}
+                value={newLearning.rangeText}
                 onChange={handleInputChange}
                 placeholder="범위"
                 className="border p-2 rounded"
@@ -253,7 +219,11 @@ export default function LearningBoard() {
             </div>
             <div className="mt-4 flex justify-end space-x-2">
               <button
-                onClick={() => setFormOpen(false)}
+                onClick={() => {
+                  setFormOpen(false);
+                  setEditMode(false);
+                  setEditingId(null);
+                }}
                 className="px-4 py-2 rounded bg-gray-300"
               >
                 취소
@@ -262,17 +232,26 @@ export default function LearningBoard() {
                 onClick={handleAddLearning}
                 className="px-4 py-2 rounded bg-blue-500 text-white"
               >
-                등록하기
+                {editMode ? "수정 완료" : "등록하기"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 등록 버튼 */}
       {!formOpen && (
         <button
-          onClick={() => setFormOpen(true)}
+          onClick={() => {
+            setFormOpen(true);
+            setNewLearning({
+              title: "",
+              subject: "",
+              goal: "",
+              rangeText: "",
+              content: "",
+              deadline: "",
+            });
+          }}
           className="fixed bottom-8 right-8 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg z-10"
         >
           + 등록

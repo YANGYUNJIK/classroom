@@ -40,4 +40,12 @@ public class LearningController {
     public void delete(@PathVariable Long id) {
         learningService.delete(id);
     }
+
+    @PutMapping("/{id}")
+    public Learning update(@PathVariable Long id, @RequestBody Learning updated) {
+        return learningService.update(id, updated); // ✅ 수정: save() → update()
+    }
+
+
+
 }

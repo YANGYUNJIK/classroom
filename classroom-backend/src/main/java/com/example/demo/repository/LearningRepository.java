@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LearningRepository extends JpaRepository<Learning, Long> {
-    List<Learning> findAllBySchoolAndGradeAndClassNum(String school, Integer grade, Integer classNum);
+    List<Learning> findBySchoolAndGradeAndClassNum(String school, Integer grade, Integer classNum);
 }
