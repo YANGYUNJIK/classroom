@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 
-const BASE_URL = "http://localhost:8080"; // ✅ BASE_URL 직접 정의
+const BASE_URL = "http://localhost:8080";
 
 export default function StudentMainPage() {
   const navigate = useNavigate();
@@ -19,19 +19,17 @@ export default function StudentMainPage() {
       return;
     }
 
-    // 최초 1회 실행
     fetchCurrentPeriod();
 
-    // 3분마다 현재 교시 정보 업데이트
     const interval = setInterval(() => {
       fetchCurrentPeriod();
-    }, 180000);
+    }, 180000); // 3분마다 갱신
 
     return () => clearInterval(interval);
   }, []);
 
   const fetchCurrentPeriod = async () => {
-    const nowTime = dayjs().format("HH:mm"); // 현재 시간
+    const nowTime = dayjs().format("HH:mm");
     const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
 
     console.log("📤 현재 요일:", dayOfWeek);
@@ -44,11 +42,13 @@ export default function StudentMainPage() {
           school: user.school,
           grade: user.grade,
           classNum: user.classNum,
-          dayOfWeek: dayOfWeek,
+          dayOfWeek,
           time: nowTime,
         },
       });
-      setCurrentPeriod(res.data.period || null);
+
+      // ✅ 전체 응답을 currentPeriod로 저장
+      setCurrentPeriod(res.data);
       setCurrentSubject(res.data.subject || null);
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);
@@ -58,7 +58,6 @@ export default function StudentMainPage() {
   const handleAttendance = async () => {
     const loginId = localStorage.getItem("loginId");
     console.log("✅ 로그인 ID 확인:", loginId);
-
     console.log("🕒 currentPeriod 값:", currentPeriod);
 
     if (!currentPeriod) {
@@ -68,7 +67,7 @@ export default function StudentMainPage() {
 
     try {
       const requestData = {
-        studentLoginId: loginId, // ✅ 핵심 수정!
+        studentLoginId: loginId,
         teacherId: currentPeriod.teacherId,
         period: currentPeriod.period,
         dayOfWeek: dayjs().format("ddd"),
@@ -101,7 +100,7 @@ export default function StudentMainPage() {
 
         {currentPeriod ? (
           <div className="mt-4 text-green-700 font-semibold">
-            현재 수업: {currentPeriod} ({currentSubject})
+            현재 수업: {currentPeriod.period}교시 ({currentSubject})
           </div>
         ) : (
           <div className="mt-4 text-gray-500">

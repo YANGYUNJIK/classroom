@@ -117,6 +117,10 @@ public class TimeTableService {
                     TimeTableDto dto = new TimeTableDto();
                     dto.setPeriod(tt.getPeriod());
                     dto.setSubject(tt.getSubject());
+                    dto.setTeacherId(tt.getTeacher() != null ? tt.getTeacher().getId() : null); // ✅ 추가
+                    dto.setStart(tt.getStartTime().format(formatter)); // ✅ 추가
+                    dto.setEnd(tt.getEndTime().format(formatter));     // ✅ 추가
+                    dto.setDayOfWeek(tt.getDayOfWeek());               // ✅ 추가
                     return Optional.of(dto);
                 }
             }
@@ -124,5 +128,6 @@ public class TimeTableService {
 
         return Optional.empty();
     }
+
 
 }
