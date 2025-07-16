@@ -6,13 +6,26 @@ export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
   const [completedMap, setCompletedMap] = useState({});
-
-  const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
-  const loginId = localStorage.getItem("loginId"); // ✅ loginId 별도 가져오기
+  const [isLoaded, setIsLoaded] = useState(false); // ✅ 최초 로딩 플래그 추가
 
   useEffect(() => {
+    const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
+    const loginId = localStorage.getItem("loginId") || "";
+
+    // 필수 정보가 없으면 중단
+    if (
+      !studentInfo.school ||
+      !studentInfo.grade ||
+      !studentInfo.classNum ||
+      !loginId
+    ) {
+      console.warn("❗ studentInfo 또는 loginId가 없습니다.");
+      return;
+    }
+
     const fetchData = async () => {
       try {
+        // 학습 목록 불러오기
         const res = await axios.get("http://localhost:8080/learnings/search", {
           params: {
             school: studentInfo.school,
@@ -26,32 +39,49 @@ export default function StudentLearningBoard() {
         );
         setData(sorted);
 
-        // ✅ 완료 상태 불러오기
+        // 완료 상태 불러오기
         const statusRes = await axios.get(
           `http://localhost:8080/api/learning-status/completed/${loginId}`
         );
-        const completedIds = statusRes.data;
+
+        const completedIds = Array.isArray(statusRes.data)
+          ? statusRes.data
+          : [];
 
         const map = {};
         sorted.forEach((item) => {
           map[item.id] = completedIds.includes(item.id);
         });
         setCompletedMap(map);
+        setIsLoaded(true); // ✅ 로딩 완료
       } catch (err) {
-        console.error("학습 불러오기 실패:", err);
+        console.error("❌ 학습 불러오기 실패:", err);
       }
     };
 
-    if (studentInfo && loginId) {
-      fetchData();
-    }
-  }, [studentInfo, loginId]);
+    fetchData();
+  }, []);
 
   const handleCardClick = (item) => {
-    if (selected?.id === item.id) {
+    setSelected(selected?.id === item.id ? null : item);
+  };
+
+  const handleComplete = async (itemId) => {
+    const loginId = localStorage.getItem("loginId") || "";
+    try {
+      await axios.post("http://localhost:8080/api/learning-status/mark", {
+        loginId,
+        learningId: itemId,
+      });
+      setCompletedMap((prev) => ({
+        ...prev,
+        [itemId]: true,
+      }));
+      alert("✅ 완료로 표시했습니다!");
       setSelected(null);
-    } else {
-      setSelected(item);
+    } catch (err) {
+      console.error("❌ 완료 처리 실패:", err);
+      alert("❌ 완료 처리에 실패했습니다.");
     }
   };
 
@@ -59,27 +89,30 @@ export default function StudentLearningBoard() {
     <div>
       <h2 className="text-xl font-bold mb-3">📚 학습 안내</h2>
 
-      {/* 가로 스크롤 카드 영역 */}
-      <div className="flex overflow-x-auto space-x-4 pb-2">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => handleCardClick(item)}
-            className="relative min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
-          >
-            {/* 완료 상태 배지 */}
-            <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm backdrop-blur-sm">
-              {completedMap[item.id] ? "완료" : "미완료"}
+      {!isLoaded ? (
+        <p className="text-gray-500">불러오는 중...</p>
+      ) : data.length === 0 ? (
+        <p className="text-gray-500">표시할 학습이 없습니다.</p>
+      ) : (
+        <div className="flex overflow-x-auto space-x-4 pb-2">
+          {data.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleCardClick(item)}
+              className="relative min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
+            >
+              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
+                {completedMap[item.id] ? "완료" : "미완료"}
+              </div>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="text-sm text-gray-600">{item.subject}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
+              </p>
             </div>
-
-            <h3 className="font-semibold text-lg">{item.title}</h3>
-            <p className="text-sm text-gray-600">{item.subject}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* 모달 */}
       {selected && (
@@ -100,36 +133,15 @@ export default function StudentLearningBoard() {
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
-            {/* 학습 완료 버튼 */}
             {!completedMap[selected.id] && (
               <button
-                onClick={async () => {
-                  try {
-                    await axios.post(
-                      "http://localhost:8080/api/learning-status/mark",
-                      {
-                        loginId: loginId,
-                        learningId: selected.id,
-                      }
-                    );
-                    setCompletedMap((prev) => ({
-                      ...prev,
-                      [selected.id]: true,
-                    }));
-                    alert("✅ 완료로 표시했습니다!");
-                    setSelected(null);
-                  } catch (err) {
-                    console.error("완료 처리 실패:", err);
-                    alert("❌ 완료 처리에 실패했습니다.");
-                  }
-                }}
+                onClick={() => handleComplete(selected.id)}
                 className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               >
                 학습 완료
               </button>
             )}
 
-            {/* 닫기 버튼 */}
             <button
               onClick={() => setSelected(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
