@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [completedMap, setCompletedMap] = useState({}); // ✅ 완료 상태 저장
 
   // ✅ 로그인 시 저장한 studentInfo 불러오기
   const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
@@ -15,11 +16,18 @@ export default function StudentLearningBoard() {
         const res = await axios.get("http://localhost:8080/learnings/search", {
           params: studentInfo,
         });
-        console.log("✅ 서버 응답:", res.data);
+        //console.log("✅ 서버 응답:", res.data);
         const sorted = res.data.sort((a, b) =>
           dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
         );
         setData(sorted);
+
+        // ✅ 완료 상태 초기화 (초기값 모두 false)
+        const initialStatus = {};
+        sorted.forEach((item) => {
+          initialStatus[item.id] = false;
+        });
+        setCompletedMap(initialStatus);
       } catch (err) {
         console.error("학습 불러오기 실패:", err);
       }
@@ -48,8 +56,13 @@ export default function StudentLearningBoard() {
           <div
             key={item.id}
             onClick={() => handleCardClick(item)}
-            className="min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
+            className="relative min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
           >
+            {/* ✅ 완료 상태 배지 */}
+            <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm backdrop-blur-sm">
+              {completedMap[item.id] ? "완료" : "미완료"}
+            </div>
+
             <h3 className="font-semibold text-lg">{item.title}</h3>
             <p className="text-sm text-gray-600">{item.subject}</p>
             <p className="text-sm text-gray-500 mt-2">
@@ -78,6 +91,34 @@ export default function StudentLearningBoard() {
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
+            {/* ✅ 학습 완료 버튼 */}
+            <button
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    "http://localhost:8080/api/learning-status/mark",
+                    {
+                      loginId: studentInfo.loginId,
+                      learningId: selected.id,
+                    }
+                  );
+                  setCompletedMap((prev) => ({
+                    ...prev,
+                    [selected.id]: true,
+                  }));
+                  alert("✅ 완료로 표시했습니다!");
+                  setSelected(null);
+                } catch (err) {
+                  console.error("완료 처리 실패:", err);
+                  alert("❌ 완료 처리에 실패했습니다.");
+                }
+              }}
+              className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              학습 완료
+            </button>
+
+            {/* 닫기 버튼 */}
             <button
               onClick={() => setSelected(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"

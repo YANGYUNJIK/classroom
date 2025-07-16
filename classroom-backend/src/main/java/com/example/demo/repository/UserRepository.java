@@ -12,6 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByRoleAndSchoolAndGradeAndClassNumOrderByNumberAsc(
         String role, String school, Integer grade, Integer classNum
     );
-    Optional<User> findByLoginId(String loginId);  // ✅ 이 줄 추가
+    Optional<User> findByLoginId(String loginId);
+    List<User> findBySchoolAndGradeAndClassNum(String school, int grade, int classNum);
 }
 
