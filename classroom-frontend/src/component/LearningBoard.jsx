@@ -48,6 +48,20 @@ export default function LearningBoard() {
     setNewLearning({ ...newLearning, [e.target.name]: e.target.value });
   };
 
+  const resetForm = () => {
+    setNewLearning({
+      title: "",
+      subject: "",
+      goal: "",
+      rangeText: "",
+      content: "",
+      deadline: "",
+    });
+    setFormOpen(false);
+    setEditMode(false);
+    setEditingId(null);
+  };
+
   const handleAddLearning = async () => {
     try {
       const teacherInfo = {
@@ -56,13 +70,12 @@ export default function LearningBoard() {
         classNum: 1,
       };
 
-      console.log("제출 데이터:", { ...newLearning, ...teacherInfo });
-
       if (editMode) {
         await axios.put(`http://localhost:8080/learnings/${editingId}`, {
           ...newLearning,
           ...teacherInfo,
         });
+
         setLearnings((prev) =>
           prev
             .map((item) =>
@@ -75,6 +88,7 @@ export default function LearningBoard() {
           ...newLearning,
           ...teacherInfo,
         });
+
         const savedLearning = response.data;
 
         setLearnings((prev) =>
@@ -84,18 +98,7 @@ export default function LearningBoard() {
         );
       }
 
-      // 초기화
-      setNewLearning({
-        title: "",
-        subject: "",
-        goal: "",
-        rangeText: "",
-        content: "",
-        deadline: "",
-      });
-      setFormOpen(false);
-      setEditMode(false);
-      setEditingId(null);
+      resetForm();
     } catch (error) {
       console.error("학습 저장 실패:", error);
     }
@@ -112,17 +115,19 @@ export default function LearningBoard() {
 
   const handleEdit = (id) => {
     const toEdit = learnings.find((item) => item.id === id);
-    setNewLearning({
-      title: toEdit.title || "",
-      subject: toEdit.subject || "",
-      goal: toEdit.goal || "",
-      rangeText: toEdit.rangeText || "",
-      content: toEdit.content || "",
-      deadline: toEdit.deadline || "",
-    });
-    setEditMode(true);
-    setEditingId(id);
-    setFormOpen(true);
+    if (toEdit) {
+      setNewLearning({
+        title: toEdit.title || "",
+        subject: toEdit.subject || "",
+        goal: toEdit.goal || "",
+        rangeText: toEdit.rangeText || "",
+        content: toEdit.content || "",
+        deadline: toEdit.deadline || "",
+      });
+      setEditingId(id);
+      setEditMode(true);
+      setFormOpen(true);
+    }
   };
 
   return (
@@ -132,7 +137,7 @@ export default function LearningBoard() {
         {learnings.map((item) => (
           <li
             key={item.id}
-            className="bg-white p-4 shadow rounded flex justify-between"
+            className="bg-white p-4 shadow rounded hover:shadow-lg transition-transform transform hover:-translate-y-1 flex justify-between"
           >
             <div>
               <h3 className="font-bold">{item.title}</h3>
@@ -219,11 +224,7 @@ export default function LearningBoard() {
             </div>
             <div className="mt-4 flex justify-end space-x-2">
               <button
-                onClick={() => {
-                  setFormOpen(false);
-                  setEditMode(false);
-                  setEditingId(null);
-                }}
+                onClick={resetForm}
                 className="px-4 py-2 rounded bg-gray-300"
               >
                 취소
@@ -243,6 +244,8 @@ export default function LearningBoard() {
         <button
           onClick={() => {
             setFormOpen(true);
+            setEditMode(false);
+            setEditingId(null);
             setNewLearning({
               title: "",
               subject: "",

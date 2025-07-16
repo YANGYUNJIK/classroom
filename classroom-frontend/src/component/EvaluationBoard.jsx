@@ -115,7 +115,6 @@ export default function EvaluationBoard() {
 
   return (
     <div className="relative">
-      {/* 평가 목록 */}
       <h2 className="text-xl font-bold mb-4">📈 평가 관리 게시판</h2>
       <ul className="space-y-4">
         {evaluations.map((item) => (
@@ -135,13 +134,13 @@ export default function EvaluationBoard() {
             <div className="space-x-2">
               <button
                 onClick={() => handleEdit(item.id)}
-                className="text-blue-500"
+                className="text-blue-500 hover:underline"
               >
                 수정
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
-                className="text-red-500"
+                className="text-red-500 hover:underline"
               >
                 삭제
               </button>
@@ -150,11 +149,13 @@ export default function EvaluationBoard() {
         ))}
       </ul>
 
-      {/* 등록 폼 */}
+      {/* 등록/수정 폼 모달 */}
       {formOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-md mx-auto p-6 rounded shadow-lg">
-            <h4 className="font-semibold mb-4 text-lg">새 평가 등록</h4>
+            <h4 className="font-semibold mb-4 text-lg">
+              {editingId ? "평가 수정" : "새 평가 등록"}
+            </h4>
             <div className="flex flex-col space-y-3">
               <input
                 name="title"
@@ -201,6 +202,7 @@ export default function EvaluationBoard() {
               <button
                 onClick={() => {
                   setFormOpen(false);
+                  setEditingId(null);
                   setNewEval({
                     title: "",
                     subject: "",
@@ -208,7 +210,6 @@ export default function EvaluationBoard() {
                     content: "",
                     endDate: "",
                   });
-                  setEditingId(null);
                 }}
                 className="px-4 py-2 rounded bg-gray-300"
               >
@@ -219,17 +220,26 @@ export default function EvaluationBoard() {
                 onClick={handleAddEvaluation}
                 className="px-4 py-2 rounded bg-blue-500 text-white"
               >
-                등록하기
+                {editingId ? "수정 완료" : "등록하기"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 등록 버튼 */}
       {!formOpen && (
         <button
-          onClick={() => setFormOpen(true)}
+          onClick={() => {
+            setFormOpen(true);
+            setEditingId(null);
+            setNewEval({
+              title: "",
+              subject: "",
+              scope: "",
+              content: "",
+              endDate: "",
+            });
+          }}
           className="fixed bottom-8 right-8 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg z-10"
         >
           + 등록
