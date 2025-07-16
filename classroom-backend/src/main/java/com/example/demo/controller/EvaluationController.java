@@ -36,8 +36,10 @@ public class EvaluationController {
         return evaluationService.findByClass(school, grade, classNum);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        evaluationService.delete(id);
+    @PutMapping("/{id}")
+    public Evaluation update(@PathVariable Long id, @RequestBody Evaluation updated) {
+        updated.setId(id); // ID를 정확히 지정해야 JPA가 수정으로 인식합니다
+        return evaluationService.save(updated);
     }
+
 }

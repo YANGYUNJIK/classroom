@@ -6,6 +6,8 @@ export default function AttendanceBoard() {
   const user = JSON.parse(localStorage.getItem("user"));
   const [timeTable, setTimeTable] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const today = dayjs().format("YYYY-MM-DD");
   const todayDayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][
     dayjs().day()
@@ -72,7 +74,13 @@ export default function AttendanceBoard() {
               {row.period} | {row.subject} ({row.start} ~ {row.end})
             </h3>
 
-            <p className="text-sm text-gray-600">
+            <p
+              className="text-sm text-gray-600 cursor-pointer hover:underline"
+              onClick={() => {
+                setSelectedPeriod(row.period);
+                setShowModal(true);
+              }}
+            >
               출석 인원:{" "}
               {
                 (attendanceData[row.period] || []).filter(
@@ -81,17 +89,35 @@ export default function AttendanceBoard() {
               }
               명
             </p>
+          </div>
+        ))}
+      </div>
 
-            <ul className="list-disc ml-5 mt-2">
-              {(attendanceData[row.period] || []).map((a) => (
+      {/* ✅ 출석 명단 모달 */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+            <h3 className="text-lg font-bold mb-4">
+              {selectedPeriod}교시 출석 명단
+            </h3>
+
+            <ul className="list-disc ml-5 mb-4">
+              {(attendanceData[selectedPeriod] || []).map((a) => (
                 <li key={a.studentId}>
                   {a.studentName} - {a.status}
                 </li>
               ))}
             </ul>
+
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              닫기
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

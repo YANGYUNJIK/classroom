@@ -12,6 +12,7 @@ export default function EvaluationBoard() {
     content: "",
     endDate: "",
   });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -52,19 +53,34 @@ export default function EvaluationBoard() {
         classNum: 2,
       };
 
-      const response = await axios.post("http://localhost:8080/evaluations", {
-        ...newEval,
-        ...teacherInfo,
-      });
+      if (editingId) {
+        // ✅ 수정 요청
+        const response = await axios.put(
+          `http://localhost:8080/evaluations/${editingId}`,
+          { ...newEval, ...teacherInfo }
+        );
 
-      const savedEval = response.data;
+        const updated = response.data;
+        setEvaluations((prev) =>
+          [...prev.filter((e) => e.id !== editingId), updated].sort(
+            (a, b) => new Date(a.endDate) - new Date(b.endDate)
+          )
+        );
+      } else {
+        // ✅ 새 평가 등록
+        const response = await axios.post("http://localhost:8080/evaluations", {
+          ...newEval,
+          ...teacherInfo,
+        });
+        const savedEval = response.data;
+        setEvaluations((prev) =>
+          [...prev, savedEval].sort(
+            (a, b) => new Date(a.endDate) - new Date(b.endDate)
+          )
+        );
+      }
 
-      setEvaluations((prev) =>
-        [...prev, savedEval].sort(
-          (a, b) => new Date(a.endDate) - new Date(b.endDate)
-        )
-      );
-
+      // ✅ 초기화
       setNewEval({
         title: "",
         subject: "",
@@ -72,21 +88,27 @@ export default function EvaluationBoard() {
         content: "",
         endDate: "",
       });
+      setEditingId(null);
       setFormOpen(false);
     } catch (error) {
       console.error("평가 저장 실패:", error);
     }
   };
 
-  const handleDelete = (id) => {
-    setEvaluations((prev) => prev.filter((evalItem) => evalItem.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/evaluations/${id}`);
+      setEvaluations((prev) => prev.filter((evalItem) => evalItem.id !== id));
+    } catch (error) {
+      console.error("삭제 실패:", error);
+    }
   };
 
   const handleEdit = (id) => {
     const toEdit = evaluations.find((item) => item.id === id);
     setNewEval(toEdit);
+    setEditingId(id);
     setFormOpen(true);
-    handleDelete(id);
   };
 
   return (
@@ -175,11 +197,22 @@ export default function EvaluationBoard() {
             </div>
             <div className="mt-4 flex justify-end space-x-2">
               <button
-                onClick={() => setFormOpen(false)}
+                onClick={() => {
+                  setFormOpen(false);
+                  setNewEval({
+                    title: "",
+                    subject: "",
+                    scope: "",
+                    content: "",
+                    endDate: "",
+                  });
+                  setEditingId(null);
+                }}
                 className="px-4 py-2 rounded bg-gray-300"
               >
                 취소
               </button>
+
               <button
                 onClick={handleAddEvaluation}
                 className="px-4 py-2 rounded bg-blue-500 text-white"
