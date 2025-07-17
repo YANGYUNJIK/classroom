@@ -1,3 +1,4 @@
+// src/component/LearningBoard.jsx
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -26,16 +27,25 @@ export default function LearningBoard() {
     classNum: 1,
   };
 
-  // ✅ 학습 + 완료 요약 모두 불러오는 함수 (수정 후에도 호출됨)
   const fetchLearningsWithSummary = async () => {
     try {
       const res = await axios.get("http://localhost:8080/learnings/search", {
         params: teacherInfo,
       });
 
-      const sorted = res.data.sort(
-        (a, b) => new Date(a.deadline) - new Date(b.deadline)
-      );
+      const today = dayjs().startOf("day");
+
+      const sorted = res.data.sort((a, b) => {
+        const aDeadline = dayjs(a.deadline);
+        const bDeadline = dayjs(b.deadline);
+        const aPast = aDeadline.isBefore(today);
+        const bPast = bDeadline.isBefore(today);
+
+        if (aPast && !bPast) return 1;
+        if (!aPast && bPast) return -1;
+        return aDeadline.isAfter(bDeadline) ? 1 : -1;
+      });
+
       setLearnings(sorted);
 
       const summaryPromises = sorted.map((item) =>
@@ -101,7 +111,7 @@ export default function LearningBoard() {
       }
 
       resetForm();
-      fetchLearningsWithSummary(); // 수정/등록 후 갱신
+      fetchLearningsWithSummary();
     } catch (err) {
       console.error("저장 실패:", err);
     }
@@ -110,7 +120,7 @@ export default function LearningBoard() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:8080/learnings/${id}`);
-      fetchLearningsWithSummary(); // 삭제 후 갱신
+      fetchLearningsWithSummary();
     } catch (err) {
       console.error("삭제 실패:", err);
     }
@@ -137,52 +147,57 @@ export default function LearningBoard() {
     <div className="relative">
       <h2 className="text-xl font-bold mb-4">📚 학습 관리 게시판</h2>
       <ul className="space-y-4">
-        {learnings.map((item) => (
-          <li
-            key={item.id}
-            className="bg-white p-4 shadow rounded hover:shadow-lg transition-transform transform hover:-translate-y-1 flex justify-between"
-          >
-            <div>
-              <h3 className="font-bold">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.subject}</p>
-              <p className="text-sm">목표: {item.goal}</p>
-              <p className="text-sm">범위: {item.rangeText}</p>
-              <p className="text-gray-700">{item.content}</p>
-              <p className="text-sm text-gray-500">
-                마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
-              </p>
+        {learnings.map((item) => {
+          const isPast = dayjs(item.deadline).isBefore(dayjs().startOf("day"));
 
-              {summaryMap[item.id] && (
-                <p
-                  className="text-sm text-blue-600 mt-1 cursor-pointer hover:underline"
-                  onClick={() => setSelectedSummary(summaryMap[item.id])}
-                >
-                  완료 {summaryMap[item.id].completed.length} / 전체{" "}
-                  {summaryMap[item.id].completed.length +
-                    summaryMap[item.id].notCompleted.length}
+          return (
+            <li
+              key={item.id}
+              className={`bg-white p-4 shadow rounded hover:shadow-lg transition-transform transform hover:-translate-y-1 flex justify-between ${
+                isPast ? "opacity-50" : ""
+              }`}
+            >
+              <div>
+                <h3 className="font-bold">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.subject}</p>
+                <p className="text-sm">목표: {item.goal}</p>
+                <p className="text-sm">범위: {item.rangeText}</p>
+                <p className="text-gray-700">{item.content}</p>
+                <p className="text-sm text-gray-500">
+                  마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
                 </p>
-              )}
-            </div>
 
-            <div className="space-x-2 text-right">
-              <button
-                onClick={() => handleEdit(item.id)}
-                className="text-blue-500 hover:underline"
-              >
-                수정
-              </button>
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="text-red-500 hover:underline"
-              >
-                삭제
-              </button>
-            </div>
-          </li>
-        ))}
+                {summaryMap[item.id] && (
+                  <p
+                    className="text-sm text-blue-600 mt-1 cursor-pointer hover:underline"
+                    onClick={() => setSelectedSummary(summaryMap[item.id])}
+                  >
+                    완료 {summaryMap[item.id].completed.length} / 전체{" "}
+                    {summaryMap[item.id].completed.length +
+                      summaryMap[item.id].notCompleted.length}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-x-2 text-right">
+                <button
+                  onClick={() => handleEdit(item.id)}
+                  className="text-blue-500 hover:underline"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  삭제
+                </button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
-      {/* ✅ 완료 학생 명단 모달 */}
       {selectedSummary && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
@@ -212,7 +227,6 @@ export default function LearningBoard() {
         </div>
       )}
 
-      {/* 등록 폼 */}
       {formOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-md mx-auto p-6 rounded shadow-lg">

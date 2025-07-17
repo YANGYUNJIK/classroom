@@ -1,4 +1,3 @@
-// src/component/StudentLearningBoard.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -7,22 +6,12 @@ export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
   const [completedMap, setCompletedMap] = useState({});
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [filter, setFilter] = useState("all"); // all | done | undone
+
+  const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
+  const loginId = localStorage.getItem("loginId") || "";
 
   useEffect(() => {
-    const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
-    const loginId = localStorage.getItem("loginId") || "";
-
-    if (
-      !studentInfo.school ||
-      !studentInfo.grade ||
-      !studentInfo.classNum ||
-      !loginId
-    ) {
-      console.warn("❗ studentInfo 또는 loginId가 없습니다.");
-      return;
-    }
-
     const fetchData = async () => {
       try {
         const res = await axios.get("http://localhost:8080/learnings/search", {
@@ -33,19 +22,15 @@ export default function StudentLearningBoard() {
           },
         });
 
-        const today = dayjs().startOf("day");
-
         const sorted = res.data.sort((a, b) => {
-          const aDeadline = dayjs(a.deadline);
-          const bDeadline = dayjs(b.deadline);
+          const now = dayjs();
+          const aOverdue = dayjs(a.deadline).isBefore(now);
+          const bOverdue = dayjs(b.deadline).isBefore(now);
 
-          const aPast = aDeadline.isBefore(today);
-          const bPast = bDeadline.isBefore(today);
+          if (aOverdue && !bOverdue) return 1;
+          if (!aOverdue && bOverdue) return -1;
 
-          if (aPast && !bPast) return 1;
-          if (!aPast && bPast) return -1;
-
-          return aDeadline.isAfter(bDeadline) ? 1 : -1;
+          return dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1;
         });
 
         setData(sorted);
@@ -63,87 +48,103 @@ export default function StudentLearningBoard() {
           map[item.id] = completedIds.includes(item.id);
         });
         setCompletedMap(map);
-        setIsLoaded(true);
       } catch (err) {
         console.error("❌ 학습 불러오기 실패:", err);
       }
     };
 
-    fetchData();
+    if (studentInfo.school && loginId) {
+      fetchData();
+    }
   }, []);
 
   const handleCardClick = (item) => {
-    const isPast = dayjs(item.deadline).isBefore(dayjs().startOf("day"));
-    if (!isPast) {
-      setSelected(selected?.id === item.id ? null : item);
+    setSelected(selected?.id === item.id ? null : item);
+  };
+
+  const toggleComplete = async (id) => {
+    try {
+      await axios.post(`http://localhost:8080/api/learning-status/mark`, {
+        loginId,
+        learningId: id,
+      });
+
+      setCompletedMap((prev) => ({
+        ...prev,
+        [id]: !prev[id],
+      }));
+
+      alert(`✅ ${completedMap[id] ? "미완료로 변경됨" : "완료로 표시됨"}`);
+      setSelected(null);
+    } catch (err) {
+      console.error("❌ 상태 토글 실패:", err);
     }
   };
 
-  const handleComplete = async (itemId) => {
-    const loginId = localStorage.getItem("loginId") || "";
-    try {
-      await axios.post("http://localhost:8080/api/learning-status/mark", {
-        loginId,
-        learningId: itemId,
-      });
-      setCompletedMap((prev) => ({
-        ...prev,
-        [itemId]: true,
-      }));
-      alert("✅ 완료로 표시했습니다!");
-      setSelected(null);
-    } catch (err) {
-      console.error("❌ 완료 처리 실패:", err);
-      alert("❌ 완료 처리에 실패했습니다.");
-    }
-  };
+  const filteredData = data.filter((item) => {
+    if (filter === "done") return completedMap[item.id];
+    if (filter === "undone") return !completedMap[item.id];
+    return true;
+  });
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-3">📚 학습 안내</h2>
 
-      {!isLoaded ? (
-        <p className="text-gray-500">불러오는 중...</p>
-      ) : data.length === 0 ? (
-        <p className="text-gray-500">표시할 학습이 없습니다.</p>
-      ) : (
-        <div className="flex overflow-x-auto space-x-4 pb-2">
-          {data.map((item) => {
-            const isPast = dayjs(item.deadline).isBefore(
-              dayjs().startOf("day")
-            );
-            const isCompleted = completedMap[item.id];
+      {/* 필터 버튼 */}
+      <div className="flex space-x-2 mb-2">
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("all")}
+        >
+          전체
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "done" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("done")}
+        >
+          완료
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "undone" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("undone")}
+        >
+          미완료
+        </button>
+      </div>
 
-            return (
-              <div
-                key={item.id}
-                onClick={() => handleCardClick(item)}
-                className={`relative min-w-[250px] bg-white p-4 rounded shadow transition ${
-                  isPast
-                    ? "opacity-40 pointer-events-none"
-                    : "cursor-pointer hover:shadow-md"
-                }`}
-              >
-                <div
-                  className={`absolute top-2 right-2 px-2 py-1 text-xs rounded-full shadow-sm ${
-                    isCompleted
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {isCompleted ? "완료" : "미완료"}
-                </div>
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.subject}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
-                </p>
+      {/* 카드 목록 */}
+      <div className="flex overflow-x-auto space-x-4 pb-2">
+        {filteredData.map((item) => {
+          const isOverdue = dayjs(item.deadline).isBefore(dayjs());
+          return (
+            <div
+              key={item.id}
+              onClick={() => handleCardClick(item)}
+              className={`relative min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
+                isOverdue ? "bg-gray-200" : "bg-white"
+              }`}
+            >
+              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
+                {completedMap[item.id] ? "완료" : "미완료"}
               </div>
-            );
-          })}
-        </div>
-      )}
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="text-sm text-gray-600">{item.subject}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
+              </p>
+            </div>
+          );
+        })}
+      </div>
 
+      {/* 모달 */}
       {selected && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
@@ -162,15 +163,14 @@ export default function StudentLearningBoard() {
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
-            {!dayjs(selected.deadline).isBefore(dayjs().startOf("day")) &&
-              !completedMap[selected.id] && (
-                <button
-                  onClick={() => handleComplete(selected.id)}
-                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                >
-                  학습 완료
-                </button>
-              )}
+            <button
+              onClick={() => toggleComplete(selected.id)}
+              className={`mt-4 px-4 py-2 rounded text-white ${
+                completedMap[selected.id] ? "bg-yellow-500" : "bg-green-500"
+              }`}
+            >
+              {completedMap[selected.id] ? "완료 취소" : "학습 완료"}
+            </button>
 
             <button
               onClick={() => setSelected(null)}
