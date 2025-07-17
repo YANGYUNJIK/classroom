@@ -1,16 +1,23 @@
-HELP.md
-.gradle
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Maven ###
+target/
+
+### Gradle ###
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### STS ###
-.apt_generated
+.apt_generated/
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 bin/
@@ -18,7 +25,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -35,4 +42,25 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### OS generated files ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+
+### Env & Secrets ###
 .env
+**/.env
+*.key
+*.pem
+*.crt
+
+### Spring Boot specific ###
+/.classpath
+/.settings
+/.project
+
+# ignore application-dev.yml if needed
+# application-dev.yml
