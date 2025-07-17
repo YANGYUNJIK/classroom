@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +13,6 @@ public class CounselingRequestDto {
     private String content;
     private String status;
     private String rejectionReason;
+    private LocalDateTime hopeTime;
+
 }

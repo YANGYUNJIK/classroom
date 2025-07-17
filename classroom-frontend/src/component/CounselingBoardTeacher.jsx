@@ -60,10 +60,16 @@ export default function CounselingBoardTeacher() {
       {counselings.map((item) => (
         <div key={item.id} className="p-4 bg-white rounded shadow">
           <p className="text-sm text-gray-500">
-            [{item.category}] {item.applicant} -{" "}
+            [{item.category}] {item.applicantName} -{" "}
             {dayjs(item.date).format("YYYY-MM-DD")}
           </p>
           <p className="mt-1">{item.content}</p>
+          <p className="text-sm text-gray-600 mt-1">
+            상담 희망 시간:{" "}
+            {item.hopeTime
+              ? dayjs(item.hopeTime).format("YYYY-MM-DD HH:mm")
+              : "없음"}
+          </p>
           <p className="mt-2 text-sm font-semibold">
             상태: {item.status}
             {item.status === "거절됨" && (

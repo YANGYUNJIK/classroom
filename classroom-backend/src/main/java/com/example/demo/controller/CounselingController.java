@@ -39,11 +39,16 @@ public class CounselingController {
         return counselingService.getForTeacher(school, grade, classNum);
     }
 
-
-
     // 교사용: 상담 허용 또는 거절 처리
     @PutMapping("/{id}")
     public void updateStatus(@PathVariable Long id, @RequestBody CounselingRequestDto request) {
         counselingService.updateStatus(id, request);
     }
+
+    // 학생 본인의 상담 삭제
+    @DeleteMapping("/{id}")
+    public void deleteCounseling(@PathVariable Long id) {
+        counselingService.deleteCounseling(id);
+    }
+
 }

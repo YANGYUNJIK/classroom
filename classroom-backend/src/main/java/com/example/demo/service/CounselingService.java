@@ -27,6 +27,7 @@ public class CounselingService {
         counseling.setCategory(request.getCategory());
         counseling.setContent(request.getContent());
         counseling.setApplicant(request.getApplicant());
+        counseling.setHopeTime(request.getHopeTime());
         counseling.setDate(LocalDate.now());
         counseling.setStatus("대기중");
         counselingRepository.save(counseling);
@@ -50,7 +51,7 @@ public class CounselingService {
         if ("거절됨".equals(request.getStatus())) {
             counseling.setRejectionReason(request.getRejectionReason());
         } else {
-            counseling.setRejectionReason(null); // 이전 사유 제거
+            counseling.setRejectionReason(null);
         }
 
         counselingRepository.save(counseling);
@@ -60,7 +61,6 @@ public class CounselingService {
     public List<CounselingResponseDto> getForTeacher(String school, int grade, int classNum) {
         List<User> students = userRepository.findBySchoolAndGradeAndClassNum(school, grade, classNum);
 
-        // loginId → 이름 맵핑
         Map<String, String> loginIdToName = students.stream()
             .collect(Collectors.toMap(User::getLoginId, User::getName));
 
@@ -70,7 +70,6 @@ public class CounselingService {
 
         List<Counseling> counselingList = counselingRepository.findByApplicantIn(loginIds);
 
-        // Counseling → CounselingResponseDto 변환
         return counselingList.stream().map(c -> {
             CounselingResponseDto dto = new CounselingResponseDto();
             dto.setId(c.getId());
@@ -81,8 +80,16 @@ public class CounselingService {
             dto.setContent(c.getContent());
             dto.setStatus(c.getStatus());
             dto.setRejectionReason(c.getRejectionReason());
+            dto.setHopeTime(c.getHopeTime());
             return dto;
         }).collect(Collectors.toList());
     }
 
+    // ✅ 수정된 삭제 메서드
+    public void deleteCounseling(Long id) {
+        if (!counselingRepository.existsById(id)) {
+            throw new IllegalArgumentException("삭제할 상담이 존재하지 않습니다. ID: " + id);
+        }
+        counselingRepository.deleteById(id);
+    }
 }
