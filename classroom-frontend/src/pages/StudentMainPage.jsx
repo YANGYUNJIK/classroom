@@ -141,7 +141,8 @@ export default function StudentMainPage() {
         <div className="bg-white border-l-4 border-green-500 shadow p-4 rounded">
           {currentPeriod ? (
             <p className="text-green-700 font-medium">
-              현재 수업: <b>{currentPeriod.period}</b> ({currentSubject})
+              현재 수업: <b>{currentPeriod.period}</b> (
+              {currentSubject || "쉬는 시간"})
             </p>
           ) : (
             <p className="text-gray-500">현재 수업 중인 교시가 없습니다.</p>

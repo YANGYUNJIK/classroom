@@ -40,14 +40,34 @@ export default function StudentEvaluationBoard() {
     }
   };
 
-  // ✅ 필터링 로직
-  const filteredData = data.filter((item) => {
-    const now = dayjs();
-    const end = dayjs(item.endDate);
-    if (filter === "upcoming") return end.isAfter(now);
-    if (filter === "past") return end.isBefore(now);
-    return true;
-  });
+  // ✅ D-day 텍스트 계산
+  const getDDayText = (endDate) => {
+    const today = dayjs().startOf("day");
+    const end = dayjs(endDate).startOf("day");
+    const diff = end.diff(today, "day");
+
+    if (diff > 0) return `D-${diff}`;
+    if (diff === 0) return "D-Day";
+    return "마감";
+  };
+
+  // ✅ 필터링 + 지난 평가 맨 뒤로
+  const filteredData = data
+    .filter((item) => {
+      const now = dayjs();
+      const end = dayjs(item.endDate);
+      if (filter === "upcoming") return end.isAfter(now);
+      if (filter === "past") return end.isBefore(now);
+      return true;
+    })
+    .sort((a, b) => {
+      const now = dayjs();
+      const aOver = dayjs(a.endDate).isBefore(now);
+      const bOver = dayjs(b.endDate).isBefore(now);
+      if (aOver && !bOver) return 1;
+      if (!aOver && bOver) return -1;
+      return 0;
+    });
 
   return (
     <div>
@@ -81,18 +101,25 @@ export default function StudentEvaluationBoard() {
         </button>
       </div>
 
-      {/* 가로 스크롤 카드 영역 */}
+      {/* 평가 카드 리스트 */}
       <div className="flex overflow-x-auto space-x-4 pb-2">
         {filteredData.map((item) => {
           const isOverdue = dayjs(item.endDate).isBefore(dayjs());
+          const dDayText = getDDayText(item.endDate);
+
           return (
             <div
               key={item.id}
               onClick={() => handleCardClick(item)}
-              className={`min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
+              className={`relative min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
                 isOverdue ? "bg-gray-200" : "bg-white"
               }`}
             >
+              {/* ✅ D-day 표시 */}
+              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
+                {dDayText}
+              </div>
+
               <h3 className="font-semibold text-lg">{item.title}</h3>
               <p className="text-sm text-gray-600">{item.subject}</p>
               <p className="text-sm text-gray-500 mt-2">
