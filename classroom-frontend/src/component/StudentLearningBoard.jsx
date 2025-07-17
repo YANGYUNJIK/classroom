@@ -122,7 +122,9 @@ export default function StudentLearningBoard() {
       {/* 카드 목록 */}
       <div className="flex overflow-x-auto space-x-4 pb-2">
         {filteredData.map((item) => {
-          const isOverdue = dayjs(item.deadline).isBefore(dayjs());
+          const isOverdue = dayjs(item.deadline).isBefore(
+            dayjs().startOf("day")
+          );
           return (
             <div
               key={item.id}

@@ -14,12 +14,19 @@ export default function EvaluationBoard() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  const getTeacherInfo = () => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return {
+      school: user.school,
+      grade: user.grade,
+      classNum: user.classNum,
+    };
+  };
+
   useEffect(() => {
     const fetchEvaluations = async () => {
       try {
-        const school = "푸른초등학교";
-        const grade = 3;
-        const classNum = 2;
+        const { school, grade, classNum } = getTeacherInfo();
 
         const response = await axios.get(
           "http://localhost:8080/evaluations/search",
@@ -64,11 +71,7 @@ export default function EvaluationBoard() {
     }
 
     try {
-      const teacherInfo = {
-        school: "푸른초등학교",
-        grade: 3,
-        classNum: 2,
-      };
+      const teacherInfo = getTeacherInfo();
 
       if (editingId) {
         const response = await axios.put(

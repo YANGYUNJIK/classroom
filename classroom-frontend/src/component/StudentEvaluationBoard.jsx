@@ -7,11 +7,7 @@ export default function StudentEvaluationBoard() {
   const [selected, setSelected] = useState(null); // 모달 내용
   const [filter, setFilter] = useState("all"); // 필터 상태 추가
 
-  const studentInfo = {
-    school: "푸른초등학교",
-    grade: 3,
-    classNum: 2,
-  };
+  const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +25,9 @@ export default function StudentEvaluationBoard() {
       }
     };
 
-    fetchData();
+    if (studentInfo.school && studentInfo.grade && studentInfo.classNum) {
+      fetchData();
+    }
   }, []);
 
   const handleCardClick = (item) => {
@@ -40,7 +38,6 @@ export default function StudentEvaluationBoard() {
     }
   };
 
-  // ✅ D-day 텍스트 계산
   const getDDayText = (endDate) => {
     const today = dayjs().startOf("day");
     const end = dayjs(endDate).startOf("day");
@@ -51,7 +48,6 @@ export default function StudentEvaluationBoard() {
     return "마감";
   };
 
-  // ✅ 필터링 + 지난 평가 맨 뒤로
   const filteredData = data
     .filter((item) => {
       const now = dayjs();
@@ -104,7 +100,9 @@ export default function StudentEvaluationBoard() {
       {/* 평가 카드 리스트 */}
       <div className="flex overflow-x-auto space-x-4 pb-2">
         {filteredData.map((item) => {
-          const isOverdue = dayjs(item.endDate).isBefore(dayjs());
+          const isOverdue = dayjs(item.endDate).isBefore(
+            dayjs().startOf("day")
+          );
           const dDayText = getDDayText(item.endDate);
 
           return (
@@ -115,7 +113,6 @@ export default function StudentEvaluationBoard() {
                 isOverdue ? "bg-gray-200" : "bg-white"
               }`}
             >
-              {/* ✅ D-day 표시 */}
               <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
                 {dDayText}
               </div>

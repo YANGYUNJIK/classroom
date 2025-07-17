@@ -1,4 +1,3 @@
-// src/component/LearningBoard.jsx
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -21,14 +20,19 @@ export default function LearningBoard() {
   const [summaryMap, setSummaryMap] = useState({});
   const [selectedSummary, setSelectedSummary] = useState(null);
 
-  const teacherInfo = {
-    school: "경북소마",
-    grade: 1,
-    classNum: 1,
+  const getTeacherInfo = () => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return {
+      school: user.school,
+      grade: user.grade,
+      classNum: user.classNum,
+    };
   };
 
   const fetchLearningsWithSummary = async () => {
     try {
+      const teacherInfo = getTeacherInfo();
+
       const res = await axios.get("http://localhost:8080/learnings/search", {
         params: teacherInfo,
       });
@@ -98,6 +102,8 @@ export default function LearningBoard() {
     }
 
     try {
+      const teacherInfo = getTeacherInfo();
+
       if (editMode) {
         await axios.put(`http://localhost:8080/learnings/${editingId}`, {
           ...newLearning,

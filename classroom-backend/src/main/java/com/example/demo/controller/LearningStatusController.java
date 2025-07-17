@@ -16,10 +16,10 @@ public class LearningStatusController {
 
     @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping("/mark")
-    public void markLearning(@RequestBody Map<String, Object> request) {
+    public void toggleLearningStatus(@RequestBody Map<String, Object> request) {
         String loginId = (String) request.get("loginId");
         Long learningId = Long.valueOf(request.get("learningId").toString());
-        learningStatusService.markAsDone(loginId, learningId);
+        learningStatusService.toggleLearningStatus(loginId, learningId);
     }
 
     @CrossOrigin(origins = "http://localhost:5173")

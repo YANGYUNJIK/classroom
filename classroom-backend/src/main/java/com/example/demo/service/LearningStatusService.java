@@ -11,11 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;  // ✅ 자바 표준 Set으로 수정
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,16 +22,17 @@ public class LearningStatusService {
     private final LearningRepository learningRepository;
     private final UserRepository userRepository;
 
-
-    public void markAsDone(String loginId, Long learningId) {
-        boolean alreadyMarked = repository.findByLoginIdAndLearningId(loginId, learningId).isPresent();
-        if (!alreadyMarked) {
+    public void toggleLearningStatus(String loginId, Long learningId) {
+        Optional<LearningStatus> existing = repository.findByLoginIdAndLearningId(loginId, learningId);
+        if (existing.isPresent()) {
+            repository.delete(existing.get()); // ✅ 완료 취소
+        } else {
             LearningStatus status = LearningStatus.builder()
                     .loginId(loginId)
                     .learningId(learningId)
                     .markedAt(LocalDateTime.now())
                     .build();
-            repository.save(status);
+            repository.save(status); // ✅ 완료 처리
         }
     }
 
@@ -46,22 +43,18 @@ public class LearningStatusService {
     }
 
     public Map<String, Object> getLearningStatusSummary(Long learningId) {
-        // 학습 정보 가져오기
         Learning learning = learningRepository.findById(learningId)
-            .orElseThrow(() -> new RuntimeException("학습 없음"));
+                .orElseThrow(() -> new RuntimeException("학습 없음"));
 
-        // 해당 학습을 받는 학급의 학생 전체 조회
         List<User> students = userRepository.findBySchoolAndGradeAndClassNum(
-            learning.getSchool(), learning.getGrade(), learning.getClassNum()
+                learning.getSchool(), learning.getGrade(), learning.getClassNum()
         );
 
-        // 완료 상태 조회
         List<LearningStatus> completedList = repository.findByLearningId(learningId);
         Set<String> completedLoginIds = completedList.stream()
                 .map(LearningStatus::getLoginId)
                 .collect(Collectors.toSet());
 
-        // 분리
         List<Map<String, String>> completed = new ArrayList<>();
         List<Map<String, String>> notCompleted = new ArrayList<>();
 
@@ -83,6 +76,4 @@ public class LearningStatusService {
         result.put("notCompleted", notCompleted);
         return result;
     }
-
-
 }
