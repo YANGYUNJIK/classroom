@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CounselingRequestDto;
+import com.example.demo.dto.CounselingResponseDto;
 import com.example.demo.entity.Counseling;
 import com.example.demo.service.CounselingService;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +31,14 @@ public class CounselingController {
 
     // ✅ 교사용: 해당 학급 학생들의 상담 목록만 조회
     @GetMapping("/teacher")
-    public List<Counseling> getForTeacher(
+    public List<CounselingResponseDto> getForTeacher(
         @RequestParam String school,
         @RequestParam int grade,
         @RequestParam int classNum
     ) {
         return counselingService.getForTeacher(school, grade, classNum);
     }
+
 
 
     // 교사용: 상담 허용 또는 거절 처리
