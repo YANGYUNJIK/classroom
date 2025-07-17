@@ -38,6 +38,7 @@ public class EvaluationService {
      */
     public String generateCoachingMessage(Evaluation eval) {
         String prompt = eval.getSubject() + " 과목의 '" + eval.getTitle() + "' 평가에 대해 학생에게 학습 코칭을 해주세요.";
-        return gptService.getAdvice(prompt).block(); // ✅ Mono<String> → block()으로 문자열 동기 반환
+        return gptService.getAdvice(prompt).block(); // GPT 호출
     }
+
 }

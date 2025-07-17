@@ -21,6 +21,7 @@ export default function StudentMainPage() {
     }
 
     fetchCurrentPeriod();
+    fetchAiAdvice();
 
     const interval = setInterval(() => {
       fetchCurrentPeriod();
@@ -46,7 +47,7 @@ export default function StudentMainPage() {
 
       setCurrentPeriod(res.data);
       setCurrentSubject(res.data.subject || null);
-      checkAttendance(); // ✅ 현재 교시 확인 후 출석 상태 체크
+      checkAttendance();
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);
     }
@@ -56,7 +57,7 @@ export default function StudentMainPage() {
     if (!currentPeriod) return;
 
     const loginId = localStorage.getItem("loginId");
-    const periodNumber = currentPeriod.period.replace(/[^0-9]/g, ""); // "4교시" → "4"
+    const periodNumber = currentPeriod.period.replace(/[^0-9]/g, "");
 
     try {
       const res = await axios.get(`${BASE_URL}/api/attendance/check`, {
@@ -74,6 +75,21 @@ export default function StudentMainPage() {
       }
     } catch (err) {
       console.error("✅ 출석 상태 확인 실패:", err);
+    }
+  };
+
+  const fetchAiAdvice = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/evaluations/coaching`, {
+        params: {
+          school: user.school,
+          grade: user.grade,
+          classNum: user.classNum,
+        },
+      });
+      setAiAdvice(res.data);
+    } catch (err) {
+      console.error("AI 학습 코칭 불러오기 실패", err);
     }
   };
 
@@ -118,7 +134,6 @@ export default function StudentMainPage() {
     <div className="min-h-screen flex flex-col justify-between px-6 py-10 bg-gray-50">
       {/* 상단 인삿말 */}
       <div className="relative">
-        {/* 우측 상단 회원정보 수정 버튼 */}
         <button
           onClick={() => navigate("/student/edit")}
           className="absolute top-0 right-0 text-sm text-blue-600 underline hover:text-blue-800"
@@ -138,7 +153,6 @@ export default function StudentMainPage() {
           <b>{user?.classNum}</b> / 번호: <b>{user?.number}</b>
         </div>
 
-        {/* 현재 수업 안내 박스 */}
         <div className="bg-white border-l-4 border-green-500 shadow p-4 rounded">
           {currentPeriod ? (
             <p className="text-green-700 font-medium">
