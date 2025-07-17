@@ -11,6 +11,7 @@ export default function StudentMainPage() {
   const [currentSubject, setCurrentSubject] = useState(null);
   const [checked, setChecked] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
+  const [aiAdvice, setAiAdvice] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -148,6 +149,16 @@ export default function StudentMainPage() {
             <p className="text-gray-500">현재 수업 중인 교시가 없습니다.</p>
           )}
         </div>
+
+        {/* GPT 학습 코칭 박스 */}
+        {aiAdvice && (
+          <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded shadow">
+            <p className="font-semibold text-yellow-800">📚 AI 학습 코칭</p>
+            <p className="text-sm text-gray-800 mt-2 whitespace-pre-line">
+              {aiAdvice}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 버튼 영역 */}
@@ -167,7 +178,6 @@ export default function StudentMainPage() {
         <button
           className="w-full py-3 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold"
           onClick={() => {
-            // localStorage.removeItem("user");
             navigate("/student/manage");
           }}
         >

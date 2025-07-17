@@ -10,9 +10,11 @@ import java.util.List;
 public class EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
+    private final GptService gptService; // ✅ GPT 서비스 주입
 
-    public EvaluationService(EvaluationRepository evaluationRepository) {
+    public EvaluationService(EvaluationRepository evaluationRepository, GptService gptService) {
         this.evaluationRepository = evaluationRepository;
+        this.gptService = gptService;
     }
 
     public Evaluation save(Evaluation evaluation) {
@@ -29,5 +31,13 @@ public class EvaluationService {
 
     public void delete(Long id) {
         evaluationRepository.deleteById(id);
+    }
+
+    /**
+     * GPT를 활용한 평가 기반 학습 코칭 메시지 생성
+     */
+    public String generateCoachingMessage(Evaluation eval) {
+        String prompt = eval.getSubject() + " 과목의 '" + eval.getTitle() + "' 평가에 대해 학생에게 학습 코칭을 해주세요.";
+        return gptService.getAdvice(prompt).block(); // ✅ Mono<String> → block()으로 문자열 동기 반환
     }
 }

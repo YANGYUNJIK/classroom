@@ -42,10 +42,20 @@ public class EvaluationController {
         return evaluationService.save(updated);
     }
 
-
     @DeleteMapping("/{id}")
-        public void delete(@PathVariable Long id) {
-            evaluationService.delete(id);
-        }
+    public void delete(@PathVariable Long id) {
+        evaluationService.delete(id);
+    }
 
+    /**
+     * ✅ GPT 기반 학습 코칭 메시지 생성
+     */
+    @GetMapping("/{id}/coaching")
+    public String getCoachingMessage(@PathVariable Long id) {
+        Evaluation eval = evaluationService.findAll().stream()
+                .filter(e -> e.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 평가 ID가 존재하지 않습니다: " + id));
+        return evaluationService.generateCoachingMessage(eval);
+    }
 }
