@@ -31,28 +31,28 @@ export default function StudentMainPage() {
   }, []);
 
   // ✅ GPT 메시지 받아오기
-  useEffect(() => {
-    const fetchAiAdvice = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/evaluations/coaching`, {
-          params: {
-            school: user.school,
-            grade: user.grade,
-            classNum: user.classNum,
-          },
-        });
+  // useEffect(() => {
+  //   const fetchAiAdvice = async () => {
+  //     try {
+  //       const res = await axios.get(`${BASE_URL}/evaluations/coaching`, {
+  //         params: {
+  //           school: user.school,
+  //           grade: user.grade,
+  //           classNum: user.classNum,
+  //         },
+  //       });
 
-        setAiAdvice(res.data);
-      } catch (err) {
-        console.error("GPT 호출 중 오류 발생", err);
-        setAiAdvice({ message: "AI 코칭 메시지를 불러오는 데 실패했습니다." });
-      } finally {
-        setLoadingAdvice(false);
-      }
-    };
+  //       setAiAdvice(res.data);
+  //     } catch (err) {
+  //       console.error("GPT 호출 중 오류 발생", err);
+  //       setAiAdvice({ message: "AI 코칭 메시지를 불러오는 데 실패했습니다." });
+  //     } finally {
+  //       setLoadingAdvice(false);
+  //     }
+  //   };
 
-    fetchAiAdvice();
-  }, []);
+  //   fetchAiAdvice();
+  // }, []);
 
   const fetchCurrentPeriod = async () => {
     const nowTime = dayjs().format("HH:mm");
@@ -140,31 +140,33 @@ export default function StudentMainPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between px-6 py-10 bg-gray-50">
+    <div className="min-h-screen flex flex-col justify-between px-4 py-6 bg-gray-50">
       {/* 상단 인삿말 */}
       <div className="relative">
         {/* 우측 상단 회원정보 수정 버튼 */}
         <button
           onClick={() => navigate("/student/edit")}
-          className="absolute top-0 right-0 text-sm text-blue-600 underline hover:text-blue-800"
+          className="absolute top-2 right-2 text-xs text-blue-600 underline hover:text-blue-800"
         >
           회원정보 수정
         </button>
 
-        <h1 className="text-3xl font-bold mb-2 text-blue-600">
+        <h1 className="text-2xl font-bold mb-2 text-blue-600">
           🎓 학생 메인 페이지
         </h1>
-        <p className="text-lg mb-2">
+        <p className="text-base mb-2">
           안녕하세요,{" "}
           <span className="font-semibold text-gray-800">{user?.name}</span>님!
         </p>
-        <div className="text-sm text-gray-600 mb-4">
-          학교: <b>{user?.school}</b> / 학년: <b>{user?.grade}</b> / 반:{" "}
-          <b>{user?.classNum}</b> / 번호: <b>{user?.number}</b>
+        <div className="text-sm text-gray-600 mb-4 space-y-1">
+          <p>
+            학교: <b>{user?.school}</b> / 학년: <b>{user?.grade}</b> / 반:{" "}
+            <b>{user?.classNum}</b> / 번호: <b>{user?.number}</b>
+          </p>
         </div>
 
         {/* 현재 수업 안내 박스 */}
-        <div className="bg-white border-l-4 border-green-500 shadow p-4 rounded">
+        <div className="bg-white border-l-4 border-green-500 shadow p-3 rounded-md text-sm">
           {currentPeriod ? (
             <p className="text-green-700 font-medium">
               현재 수업: <b>{currentPeriod.period}</b> (
@@ -176,12 +178,13 @@ export default function StudentMainPage() {
         </div>
 
         {/* ✅ GPT 학습 코칭 박스 */}
+
         {aiAdvice && (
-          <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded shadow">
+          <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded-md shadow text-sm">
             <p className="font-semibold text-yellow-800">📚 AI 학습 코칭</p>
 
             {/* 📌 평가 정보 먼저 출력 */}
-            <div className="text-sm text-gray-700 mt-2 space-y-1">
+            <div className="mt-2 space-y-1 text-gray-700">
               {aiAdvice.title && (
                 <p>
                   <b>제목:</b> {aiAdvice.title}
@@ -204,13 +207,10 @@ export default function StudentMainPage() {
               )}
             </div>
 
-            {/* ✨ GPT 메시지는 로딩 완료 후 출력 */}
             {loadingAdvice ? (
-              <p className="mt-3 text-sm text-gray-500">
-                코칭 메시지를 생성 중...
-              </p>
+              <p className="mt-3 text-gray-500">코칭 메시지를 생성 중...</p>
             ) : (
-              <p className="text-sm text-gray-800 mt-3 whitespace-pre-line">
+              <p className="mt-3 text-gray-800 whitespace-pre-line">
                 {aiAdvice.message}
               </p>
             )}
@@ -221,10 +221,10 @@ export default function StudentMainPage() {
       {/* 버튼 영역 */}
       <div className="mt-10 flex flex-col space-y-4">
         <button
-          className={`w-full py-3 rounded text-white font-semibold ${
+          className={`w-full py-3 text-sm font-semibold rounded ${
             checked
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
+              : "bg-green-500 hover:bg-green-600 text-white"
           }`}
           onClick={handleAttendance}
           disabled={checked}
@@ -233,7 +233,7 @@ export default function StudentMainPage() {
         </button>
 
         <button
-          className="w-full py-3 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+          className="w-full py-3 text-sm rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold"
           onClick={() => {
             navigate("/student/manage");
           }}
@@ -242,7 +242,7 @@ export default function StudentMainPage() {
         </button>
 
         <button
-          className="w-full py-3 rounded bg-red-500 hover:bg-red-600 text-white font-semibold"
+          className="w-full py-3 text-sm rounded bg-red-500 hover:bg-red-600 text-white font-semibold"
           onClick={() => {
             localStorage.removeItem("user");
             navigate("/login");

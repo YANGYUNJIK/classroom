@@ -67,12 +67,12 @@ export default function StudentEvaluationBoard() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-3">📈 평가 안내</h2>
+      <h2 className="text-lg font-bold mb-3">📈 평가 안내</h2>
 
       {/* 필터 버튼 */}
-      <div className="flex space-x-2 mb-2">
+      <div className="flex overflow-x-auto space-x-2 mb-3 pb-1">
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("all")}
@@ -80,7 +80,7 @@ export default function StudentEvaluationBoard() {
           전체
         </button>
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "upcoming" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("upcoming")}
@@ -88,7 +88,7 @@ export default function StudentEvaluationBoard() {
           다가올 평가
         </button>
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "past" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("past")}
@@ -98,7 +98,11 @@ export default function StudentEvaluationBoard() {
       </div>
 
       {/* 평가 카드 리스트 */}
-      <div className="flex overflow-x-auto space-x-4 pb-2">
+      {/* 평가 카드 리스트 */}
+      <div
+        className="flex overflow-x-auto space-x-4 pb-2"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         {filteredData.map((item) => {
           const isOverdue = dayjs(item.endDate).isBefore(
             dayjs().startOf("day")
@@ -109,7 +113,7 @@ export default function StudentEvaluationBoard() {
             <div
               key={item.id}
               onClick={() => handleCardClick(item)}
-              className={`relative min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
+              className={`relative min-w-[220px] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition ${
                 isOverdue ? "bg-gray-200" : "bg-white"
               }`}
             >
@@ -117,7 +121,7 @@ export default function StudentEvaluationBoard() {
                 {dDayText}
               </div>
 
-              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <h3 className="font-semibold text-base">{item.title}</h3>
               <p className="text-sm text-gray-600">{item.subject}</p>
               <p className="text-sm text-gray-500 mt-2">
                 마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
@@ -134,14 +138,16 @@ export default function StudentEvaluationBoard() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg relative"
+            className="bg-white rounded-lg p-5 w-[90%] max-w-sm shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold mb-2">{selected.title}</h3>
+            <h3 className="text-lg font-bold mb-2">{selected.title}</h3>
             <p className="text-sm text-gray-600">{selected.subject}</p>
-            <p className="mt-2">📌 범위: {selected.scope}</p>
-            <p className="mt-2 text-gray-800">{selected.content}</p>
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="mt-2 text-sm">📌 범위: {selected.scope}</p>
+            <p className="mt-2 text-sm text-gray-800 whitespace-pre-line">
+              {selected.content}
+            </p>
+            <p className="text-xs text-gray-500 mt-4">
               마감일: {dayjs(selected.endDate).format("YYYY-MM-DD")}
             </p>
 

@@ -89,12 +89,13 @@ export default function StudentLearningBoard() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-3">📚 학습 안내</h2>
+      {/* 제목 */}
+      <h2 className="text-lg font-bold mb-3">📚 학습 안내</h2>
 
       {/* 필터 버튼 */}
-      <div className="flex space-x-2 mb-2">
+      <div className="flex overflow-x-auto space-x-2 mb-3 pb-1">
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("all")}
@@ -102,7 +103,7 @@ export default function StudentLearningBoard() {
           전체
         </button>
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "done" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("done")}
@@ -110,7 +111,7 @@ export default function StudentLearningBoard() {
           완료
         </button>
         <button
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
             filter === "undone" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => setFilter("undone")}
@@ -119,8 +120,11 @@ export default function StudentLearningBoard() {
         </button>
       </div>
 
-      {/* 카드 목록 */}
-      <div className="flex overflow-x-auto space-x-4 pb-2">
+      {/* 카드 리스트 */}
+      <div
+        className="flex overflow-x-auto space-x-4 pb-2"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         {filteredData.map((item) => {
           const isOverdue = dayjs(item.deadline).isBefore(
             dayjs().startOf("day")
@@ -129,14 +133,14 @@ export default function StudentLearningBoard() {
             <div
               key={item.id}
               onClick={() => handleCardClick(item)}
-              className={`relative min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
+              className={`relative min-w-[220px] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition ${
                 isOverdue ? "bg-gray-200" : "bg-white"
               }`}
             >
               <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
                 {completedMap[item.id] ? "완료" : "미완료"}
               </div>
-              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <h3 className="font-semibold text-base">{item.title}</h3>
               <p className="text-sm text-gray-600">{item.subject}</p>
               <p className="text-sm text-gray-500 mt-2">
                 마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
@@ -153,21 +157,23 @@ export default function StudentLearningBoard() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg relative"
+            className="bg-white rounded-lg p-5 w-[90%] max-w-sm shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold mb-2">{selected.title}</h3>
+            <h3 className="text-lg font-bold mb-2">{selected.title}</h3>
             <p className="text-sm text-gray-600">{selected.subject}</p>
-            <p className="mt-2">🎯 목표: {selected.goal}</p>
-            <p className="mt-2">📌 범위: {selected.rangeText}</p>
-            <p className="mt-2 text-gray-800">{selected.content}</p>
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="mt-2 text-sm">🎯 목표: {selected.goal}</p>
+            <p className="mt-2 text-sm">📌 범위: {selected.rangeText}</p>
+            <p className="mt-2 text-sm text-gray-800 whitespace-pre-line">
+              {selected.content}
+            </p>
+            <p className="text-xs text-gray-500 mt-4">
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
             <button
               onClick={() => toggleComplete(selected.id)}
-              className={`mt-4 px-4 py-2 rounded text-white ${
+              className={`mt-4 px-4 py-2 rounded text-white text-sm ${
                 completedMap[selected.id] ? "bg-yellow-500" : "bg-green-500"
               }`}
             >
