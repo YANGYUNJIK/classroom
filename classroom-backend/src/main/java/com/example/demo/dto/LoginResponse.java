@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/dto/LoginResponse.java
 package com.example.demo.dto;
 
 import lombok.Getter;
@@ -15,4 +14,5 @@ public class LoginResponse {
     private Integer grade;
     private Integer classNum;
     private Integer number;
+    private String subject;  // ✅ 이 줄 추가
 }

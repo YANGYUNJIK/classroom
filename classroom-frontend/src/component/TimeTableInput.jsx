@@ -252,7 +252,7 @@ export default function TimeTableInput() {
             <th className="border px-4 py-2">시작 시간</th>
             <th className="border px-4 py-2">끝 시간</th>
             <th className="border px-4 py-2">과목</th>
-            <th className="border px-4 py-2">삭제</th> {/* ✅ 삭제 열 추가 */}
+            <th className="border px-4 py-2">삭제</th>
           </tr>
         </thead>
         <tbody>

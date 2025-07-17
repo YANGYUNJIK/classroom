@@ -48,7 +48,11 @@ export default function TeacherManagePage() {
         <div>
           <h2 className="text-xl font-bold">교사 관리 페이지</h2>
           <p className="text-sm text-gray-600">
-            {user?.school} / {user?.name} ({user?.subject})
+            {user?.school} / {user?.name} (
+            {user?.grade && user?.classNum
+              ? `${user.grade}학년 ${user.classNum}반 / ${user.subject}`
+              : user?.subject}
+            )
           </p>
         </div>
         <button

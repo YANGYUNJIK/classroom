@@ -40,12 +40,14 @@ public class UserController {
             response.setGrade(user.getGrade());
             response.setClassNum(user.getClassNum());
             response.setNumber(user.getNumber());
+            response.setSubject(user.getSubject()); // ✅ 이 줄 추가
 
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
         }
     }
+
 
 
     // ✅ 우리반 학생 목록 조회 API

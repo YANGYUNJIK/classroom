@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 export default function StudentEvaluationBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null); // 모달 내용
+  const [filter, setFilter] = useState("all"); // 필터 상태 추가
 
   const studentInfo = {
     school: "푸른초등학교",
@@ -33,43 +34,84 @@ export default function StudentEvaluationBoard() {
 
   const handleCardClick = (item) => {
     if (selected?.id === item.id) {
-      // 같은 카드 클릭 → 닫기
       setSelected(null);
     } else {
       setSelected(item);
     }
   };
 
+  // ✅ 필터링 로직
+  const filteredData = data.filter((item) => {
+    const now = dayjs();
+    const end = dayjs(item.endDate);
+    if (filter === "upcoming") return end.isAfter(now);
+    if (filter === "past") return end.isBefore(now);
+    return true;
+  });
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-3">📈 평가 안내</h2>
 
+      {/* 필터 버튼 */}
+      <div className="flex space-x-2 mb-2">
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("all")}
+        >
+          전체
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "upcoming" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("upcoming")}
+        >
+          다가올 평가
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filter === "past" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setFilter("past")}
+        >
+          지난 평가
+        </button>
+      </div>
+
       {/* 가로 스크롤 카드 영역 */}
       <div className="flex overflow-x-auto space-x-4 pb-2">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => handleCardClick(item)}
-            className="min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
-          >
-            <h3 className="font-semibold text-lg">{item.title}</h3>
-            <p className="text-sm text-gray-600">{item.subject}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
-            </p>
-          </div>
-        ))}
+        {filteredData.map((item) => {
+          const isOverdue = dayjs(item.endDate).isBefore(dayjs());
+          return (
+            <div
+              key={item.id}
+              onClick={() => handleCardClick(item)}
+              className={`min-w-[250px] p-4 rounded shadow cursor-pointer hover:shadow-md transition ${
+                isOverdue ? "bg-gray-200" : "bg-white"
+              }`}
+            >
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="text-sm text-gray-600">{item.subject}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
       {/* 모달 */}
       {selected && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-          onClick={() => setSelected(null)} // 배경 클릭 시 닫기
+          onClick={() => setSelected(null)}
         >
           <div
             className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg relative"
-            onClick={(e) => e.stopPropagation()} // 모달 안 클릭 시 닫힘 방지
+            onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold mb-2">{selected.title}</h3>
             <p className="text-sm text-gray-600">{selected.subject}</p>
@@ -79,7 +121,6 @@ export default function StudentEvaluationBoard() {
               마감일: {dayjs(selected.endDate).format("YYYY-MM-DD")}
             </p>
 
-            {/* 닫기 버튼 */}
             <button
               onClick={() => setSelected(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
