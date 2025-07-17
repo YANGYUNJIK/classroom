@@ -10,7 +10,7 @@ export default function StudentMainPage() {
   const [currentPeriod, setCurrentPeriod] = useState(null);
   const [currentSubject, setCurrentSubject] = useState(null);
   const [checked, setChecked] = useState(false);
-  const [aiAdvice, setAiAdvice] = useState("");
+  const [aiAdvice, setAiAdvice] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const [loadingAdvice, setLoadingAdvice] = useState(true);
 
@@ -30,6 +30,7 @@ export default function StudentMainPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ GPT 메시지 받아오기
   useEffect(() => {
     const fetchAiAdvice = async () => {
       try {
@@ -44,9 +45,9 @@ export default function StudentMainPage() {
         setAiAdvice(res.data);
       } catch (err) {
         console.error("GPT 호출 중 오류 발생", err);
-        setAiAdvice("AI 코칭 메시지를 불러오는 데 실패했습니다.");
+        setAiAdvice({ message: "AI 코칭 메시지를 불러오는 데 실패했습니다." });
       } finally {
-        setLoadingAdvice(false); // 로딩 완료
+        setLoadingAdvice(false);
       }
     };
 
@@ -174,7 +175,7 @@ export default function StudentMainPage() {
           )}
         </div>
 
-        {/* GPT 학습 코칭 박스 */}
+        {/* ✅ GPT 학습 코칭 박스 */}
         {loadingAdvice ? (
           <div className="mt-4 text-sm text-gray-500">
             AI 코칭 메시지를 불러오는 중...
@@ -183,8 +184,34 @@ export default function StudentMainPage() {
           aiAdvice && (
             <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded shadow">
               <p className="font-semibold text-yellow-800">📚 AI 학습 코칭</p>
-              <p className="text-sm text-gray-800 mt-2 whitespace-pre-line">
-                {aiAdvice}
+
+              {/* 📌 평가 정보 출력 */}
+              <div className="text-sm text-gray-700 mt-2 space-y-1">
+                {aiAdvice.title && (
+                  <p>
+                    <b>제목:</b> {aiAdvice.title}
+                  </p>
+                )}
+                {aiAdvice.subject && (
+                  <p>
+                    <b>과목:</b> {aiAdvice.subject}
+                  </p>
+                )}
+                {aiAdvice.scope && (
+                  <p>
+                    <b>범위:</b> {aiAdvice.scope}
+                  </p>
+                )}
+                {aiAdvice.content && (
+                  <p>
+                    <b>내용:</b> {aiAdvice.content}
+                  </p>
+                )}
+              </div>
+
+              {/* ✨ GPT 메시지 */}
+              <p className="text-sm text-gray-800 mt-3 whitespace-pre-line">
+                {aiAdvice.message}
               </p>
             </div>
           )

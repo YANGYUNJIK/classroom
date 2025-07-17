@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.EvaluationCoachingDto;
 import com.example.demo.entity.Evaluation;
 import com.example.demo.service.EvaluationService;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class EvaluationController {
 
     @PutMapping("/{id}")
     public Evaluation update(@PathVariable Long id, @RequestBody Evaluation updated) {
-        updated.setId(id); // ID를 정확히 지정해야 JPA가 수정으로 인식합니다
+        updated.setId(id);
         return evaluationService.save(updated);
     }
 
@@ -48,26 +49,14 @@ public class EvaluationController {
     }
 
     /**
-     * ✅ GPT 기반 학습 코칭 메시지 생성
+     * ✅ GPT 기반 학습 코칭 메시지 + 평가 내용 포함 반환
      */
-    @CrossOrigin(origins = "http://localhost:5173") 
     @GetMapping("/coaching")
-    public String getCoachingMessage(
+    public EvaluationCoachingDto getCoachingMessage(
             @RequestParam String school,
             @RequestParam Integer grade,
             @RequestParam Integer classNum
     ) {
-        List<Evaluation> evaluations = evaluationService.findByClass(school, grade, classNum);
-
-        if (evaluations.isEmpty()) {
-            return "최근 평가가 없습니다.";
-        }
-
-        // 가장 마지막 평가 1개 선택 (가장 최근에 등록된 순)
-        evaluations.sort((e1, e2) -> e2.getEndDate().compareTo(e1.getEndDate()));
-        Evaluation latestEval = evaluations.get(0);
-
-        return evaluationService.generateCoachingMessage(latestEval);
+        return evaluationService.getLatestCoaching(school, grade, classNum);
     }
-
 }
