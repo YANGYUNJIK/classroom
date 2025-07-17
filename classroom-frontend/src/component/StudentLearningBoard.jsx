@@ -122,28 +122,29 @@ export default function StudentLearningBoard() {
 
       {/* 카드 리스트 */}
       <div
-        className="flex overflow-x-auto space-x-4 pb-2"
+        className="flex overflow-x-auto space-x-3 pb-2"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {filteredData.map((item) => {
           const isOverdue = dayjs(item.deadline).isBefore(
             dayjs().startOf("day")
           );
+
           return (
             <div
               key={item.id}
               onClick={() => handleCardClick(item)}
-              className={`relative min-w-[220px] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition ${
-                isOverdue ? "bg-gray-200" : "bg-white"
+              className={`relative min-w-[47%] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition text-sm ${
+                isOverdue ? "bg-gray-100 text-gray-500" : "bg-white"
               }`}
             >
-              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
+              <div className="absolute top-2 right-2 px-2 py-0.5 text-[10px] rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
                 {completedMap[item.id] ? "완료" : "미완료"}
               </div>
-              <h3 className="font-semibold text-base">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.subject}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
+              <h3 className="font-semibold text-sm truncate">{item.title}</h3>
+              <p className="text-xs text-gray-600">{item.subject}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                마감: {dayjs(item.deadline).format("MM-DD")}
               </p>
             </div>
           );

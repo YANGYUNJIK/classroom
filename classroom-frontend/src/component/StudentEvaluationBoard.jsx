@@ -50,10 +50,12 @@ export default function StudentEvaluationBoard() {
 
   const filteredData = data
     .filter((item) => {
-      const now = dayjs();
-      const end = dayjs(item.endDate);
-      if (filter === "upcoming") return end.isAfter(now);
-      if (filter === "past") return end.isBefore(now);
+      const today = dayjs().startOf("day");
+      const end = dayjs(item.endDate).startOf("day");
+
+      if (filter === "upcoming")
+        return end.isSame(today, "day") || end.isAfter(today);
+      if (filter === "past") return end.isBefore(today);
       return true;
     })
     .sort((a, b) => {
@@ -98,9 +100,8 @@ export default function StudentEvaluationBoard() {
       </div>
 
       {/* 평가 카드 리스트 */}
-      {/* 평가 카드 리스트 */}
       <div
-        className="flex overflow-x-auto space-x-4 pb-2"
+        className="flex overflow-x-auto space-x-3 pb-2"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {filteredData.map((item) => {
@@ -113,18 +114,18 @@ export default function StudentEvaluationBoard() {
             <div
               key={item.id}
               onClick={() => handleCardClick(item)}
-              className={`relative min-w-[220px] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition ${
-                isOverdue ? "bg-gray-200" : "bg-white"
+              className={`relative min-w-[47%] p-4 rounded-md shadow-sm cursor-pointer hover:shadow-md transition text-sm ${
+                isOverdue ? "bg-gray-100 text-gray-500" : "bg-white"
               }`}
             >
-              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
+              <div className="absolute top-2 right-2 px-2 py-0.5 text-[10px] rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
                 {dDayText}
               </div>
 
-              <h3 className="font-semibold text-base">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.subject}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
+              <h3 className="font-semibold text-sm truncate">{item.title}</h3>
+              <p className="text-xs text-gray-600">{item.subject}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                마감: {dayjs(item.endDate).format("MM-DD")}
               </p>
             </div>
           );
