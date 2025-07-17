@@ -118,6 +118,9 @@ export default function LearningBoard() {
   };
 
   const handleDelete = async (id) => {
+    const confirmed = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
     try {
       await axios.delete(`http://localhost:8080/learnings/${id}`);
       fetchLearningsWithSummary();

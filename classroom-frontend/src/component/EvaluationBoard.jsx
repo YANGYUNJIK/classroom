@@ -122,6 +122,9 @@ export default function EvaluationBoard() {
   };
 
   const handleDelete = async (id) => {
+    const confirmed = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
     try {
       await axios.delete(`/evaluations/${id}`);
       setEvaluations((prev) => prev.filter((evalItem) => evalItem.id !== id));
