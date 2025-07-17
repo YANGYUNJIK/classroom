@@ -79,6 +79,14 @@ export default function LearningBoard() {
   };
 
   const handleAddLearning = async () => {
+    const today = dayjs().startOf("day");
+    const deadline = dayjs(newLearning.deadline);
+
+    if (deadline.isBefore(today)) {
+      alert("❗ 마감일은 오늘 이후여야 합니다.");
+      return;
+    }
+
     try {
       if (editMode) {
         await axios.put(`http://localhost:8080/learnings/${editingId}`, {

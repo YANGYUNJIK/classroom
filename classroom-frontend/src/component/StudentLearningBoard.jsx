@@ -1,3 +1,4 @@
+// src/component/StudentLearningBoard.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -6,13 +7,12 @@ export default function StudentLearningBoard() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
   const [completedMap, setCompletedMap] = useState({});
-  const [isLoaded, setIsLoaded] = useState(false); // ✅ 최초 로딩 플래그 추가
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
     const loginId = localStorage.getItem("loginId") || "";
 
-    // 필수 정보가 없으면 중단
     if (
       !studentInfo.school ||
       !studentInfo.grade ||
@@ -25,7 +25,6 @@ export default function StudentLearningBoard() {
 
     const fetchData = async () => {
       try {
-        // 학습 목록 불러오기
         const res = await axios.get("http://localhost:8080/learnings/search", {
           params: {
             school: studentInfo.school,
@@ -34,12 +33,23 @@ export default function StudentLearningBoard() {
           },
         });
 
-        const sorted = res.data.sort((a, b) =>
-          dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
-        );
+        const today = dayjs().startOf("day");
+
+        const sorted = res.data.sort((a, b) => {
+          const aDeadline = dayjs(a.deadline);
+          const bDeadline = dayjs(b.deadline);
+
+          const aPast = aDeadline.isBefore(today);
+          const bPast = bDeadline.isBefore(today);
+
+          if (aPast && !bPast) return 1;
+          if (!aPast && bPast) return -1;
+
+          return aDeadline.isAfter(bDeadline) ? 1 : -1;
+        });
+
         setData(sorted);
 
-        // 완료 상태 불러오기
         const statusRes = await axios.get(
           `http://localhost:8080/api/learning-status/completed/${loginId}`
         );
@@ -53,7 +63,7 @@ export default function StudentLearningBoard() {
           map[item.id] = completedIds.includes(item.id);
         });
         setCompletedMap(map);
-        setIsLoaded(true); // ✅ 로딩 완료
+        setIsLoaded(true);
       } catch (err) {
         console.error("❌ 학습 불러오기 실패:", err);
       }
@@ -63,7 +73,10 @@ export default function StudentLearningBoard() {
   }, []);
 
   const handleCardClick = (item) => {
-    setSelected(selected?.id === item.id ? null : item);
+    const isPast = dayjs(item.deadline).isBefore(dayjs().startOf("day"));
+    if (!isPast) {
+      setSelected(selected?.id === item.id ? null : item);
+    }
   };
 
   const handleComplete = async (itemId) => {
@@ -95,26 +108,42 @@ export default function StudentLearningBoard() {
         <p className="text-gray-500">표시할 학습이 없습니다.</p>
       ) : (
         <div className="flex overflow-x-auto space-x-4 pb-2">
-          {data.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleCardClick(item)}
-              className="relative min-w-[250px] bg-white p-4 rounded shadow cursor-pointer hover:shadow-md transition"
-            >
-              <div className="absolute top-2 right-2 px-2 py-1 text-xs rounded-full bg-blue-100/80 text-blue-800 shadow-sm">
-                {completedMap[item.id] ? "완료" : "미완료"}
+          {data.map((item) => {
+            const isPast = dayjs(item.deadline).isBefore(
+              dayjs().startOf("day")
+            );
+            const isCompleted = completedMap[item.id];
+
+            return (
+              <div
+                key={item.id}
+                onClick={() => handleCardClick(item)}
+                className={`relative min-w-[250px] bg-white p-4 rounded shadow transition ${
+                  isPast
+                    ? "opacity-40 pointer-events-none"
+                    : "cursor-pointer hover:shadow-md"
+                }`}
+              >
+                <div
+                  className={`absolute top-2 right-2 px-2 py-1 text-xs rounded-full shadow-sm ${
+                    isCompleted
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {isCompleted ? "완료" : "미완료"}
+                </div>
+                <h3 className="font-semibold text-lg">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.subject}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
+                </p>
               </div>
-              <h3 className="font-semibold text-lg">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.subject}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                마감일: {dayjs(item.deadline).format("YYYY-MM-DD")}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* 모달 */}
       {selected && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
@@ -133,14 +162,15 @@ export default function StudentLearningBoard() {
               마감일: {dayjs(selected.deadline).format("YYYY-MM-DD")}
             </p>
 
-            {!completedMap[selected.id] && (
-              <button
-                onClick={() => handleComplete(selected.id)}
-                className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                학습 완료
-              </button>
-            )}
+            {!dayjs(selected.deadline).isBefore(dayjs().startOf("day")) &&
+              !completedMap[selected.id] && (
+                <button
+                  onClick={() => handleComplete(selected.id)}
+                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  학습 완료
+                </button>
+              )}
 
             <button
               onClick={() => setSelected(null)}
