@@ -8,24 +8,47 @@ export default function CounselingBoardTeacher() {
   const [reason, setReason] = useState("");
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+  const user = JSON.parse(localStorage.getItem("user")); // 교사 정보
+
   const fetchCounselings = async () => {
-    const res = await axios.get(`${BASE_URL}/api/counselings/all`);
-    setCounselings(res.data);
+    try {
+      const res = await axios.get(`${BASE_URL}/api/counselings/teacher`, {
+        params: {
+          school: user.school,
+          grade: user.grade,
+          classNum: user.classNum,
+        },
+      });
+      setCounselings(res.data);
+    } catch (err) {
+      console.error("상담 데이터 불러오기 실패", err);
+    }
   };
 
   const handleAccept = async (id) => {
-    await axios.post(`${BASE_URL}/api/counselings/${id}/accept`);
-    fetchCounselings();
+    try {
+      await axios.put(`${BASE_URL}/api/counselings/${id}`, {
+        status: "허락됨",
+      });
+      fetchCounselings();
+    } catch (err) {
+      console.error("허락 실패", err);
+    }
   };
 
   const handleReject = async (id) => {
     if (!reason.trim()) return alert("거절 사유를 입력하세요.");
-    await axios.post(`${BASE_URL}/api/counselings/${id}/reject`, reason, {
-      headers: { "Content-Type": "application/json" },
-    });
-    setRejectingId(null);
-    setReason("");
-    fetchCounselings();
+    try {
+      await axios.put(`${BASE_URL}/api/counselings/${id}`, {
+        status: "거절됨",
+        rejectionReason: reason,
+      });
+      setRejectingId(null);
+      setReason("");
+      fetchCounselings();
+    } catch (err) {
+      console.error("거절 실패", err);
+    }
   };
 
   useEffect(() => {
@@ -48,7 +71,7 @@ export default function CounselingBoardTeacher() {
             )}
           </p>
 
-          {item.status === "신청됨" && (
+          {item.status === "대기중" && (
             <div className="mt-2 flex flex-col gap-2">
               {rejectingId === item.id ? (
                 <>

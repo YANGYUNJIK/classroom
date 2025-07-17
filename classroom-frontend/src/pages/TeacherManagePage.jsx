@@ -36,8 +36,7 @@ export default function TeacherManagePage() {
       case "학습 관리":
         return <LearningBoard user={user} />;
       case "상담 관리":
-        // return <CounselingBoardTeacher user={user} />;
-        return <div>메뉴를 선택하세요.</div>;
+        return <CounselingBoardTeacher user={user} />;
       default:
         return <div>메뉴를 선택하세요.</div>;
     }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173") // 또는 Netlify 도메인
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/counselings")
@@ -27,11 +28,16 @@ public class CounselingController {
         return counselingService.getByApplicant(applicant);
     }
 
-    // 교사용: 상담 전체 조회
+    // ✅ 교사용: 해당 학급 학생들의 상담 목록만 조회
     @GetMapping("/teacher")
-    public List<Counseling> getAll() {
-        return counselingService.getAll();
+    public List<Counseling> getForTeacher(
+        @RequestParam String school,
+        @RequestParam int grade,
+        @RequestParam int classNum
+    ) {
+        return counselingService.getForTeacher(school, grade, classNum);
     }
+
 
     // 교사용: 상담 허용 또는 거절 처리
     @PutMapping("/{id}")

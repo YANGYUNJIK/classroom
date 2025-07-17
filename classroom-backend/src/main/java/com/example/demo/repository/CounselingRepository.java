@@ -8,4 +8,6 @@ import java.util.List;
 public interface CounselingRepository extends JpaRepository<Counseling, Long> {
     List<Counseling> findByApplicant(String applicant);
     List<Counseling> findAllByOrderByDateDesc();
+    List<Counseling> findByApplicantIn(List<String> applicantLoginIds);
+
 }

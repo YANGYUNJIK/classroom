@@ -8,33 +8,43 @@ export default function CounselingBoardStudent() {
   const [form, setForm] = useState({ category: "학교생활", content: "" });
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
 
   const fetchCounselings = async () => {
-    const res = await axios.get(`${BASE_URL}/api/counselings/student`, {
-      params: { applicant: user.loginId },
-    });
+    try {
+      const res = await axios.get(`${BASE_URL}/api/counselings/student`, {
+        params: { applicant: user?.loginId },
+      });
 
-    // 🛡️ 응답이 배열인지 확인 후 상태 업데이트
-    if (Array.isArray(res.data)) {
-      setCounselings(res.data);
-    } else {
-      console.error("상담 데이터가 배열이 아닙니다:", res.data);
-      setCounselings([]); // fallback
+      if (Array.isArray(res.data)) {
+        setCounselings(res.data);
+      } else {
+        console.error("상담 데이터가 배열이 아닙니다:", res.data);
+        setCounselings([]);
+      }
+    } catch (err) {
+      console.error("❌ 상담 데이터 불러오기 실패", err);
     }
   };
 
   const handleSubmit = async () => {
     if (!form.content.trim()) return alert("내용을 입력하세요.");
 
-    await axios.post(`${BASE_URL}/api/counselings`, {
-      ...form,
-      applicant: user.loginId,
-    });
+    try {
+      await axios.post(`${BASE_URL}/api/counselings`, {
+        ...form,
+        applicant: user?.loginId,
+      });
 
-    setForm({ category: "학교생활", content: "" });
-    setModalOpen(false);
-    fetchCounselings();
+      alert("상담 신청이 완료되었습니다!"); // ✅ 여기 추가
+
+      setForm({ category: "학교생활", content: "" });
+      setModalOpen(false);
+      fetchCounselings();
+    } catch (err) {
+      console.error("❌ 상담 신청 실패", err);
+      alert("상담 신청 중 문제가 발생했습니다.");
+    }
   };
 
   useEffect(() => {
