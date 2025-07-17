@@ -166,7 +166,7 @@ export default function StudentMainPage() {
         <button
           className="w-full py-3 rounded bg-blue-500 hover:bg-blue-600 text-white font-semibold"
           onClick={() => {
-            localStorage.removeItem("user");
+            // localStorage.removeItem("user");
             navigate("/student/manage");
           }}
         >
