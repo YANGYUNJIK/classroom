@@ -15,4 +15,6 @@ public class CounselingResponseDto {
     private String content;
     private String status;
     private String rejectionReason;
+    private String applicantName;  // ✅ 신청자 이름 추가
+
 }

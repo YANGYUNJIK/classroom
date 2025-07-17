@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CounselingRequestDto;
+import com.example.demo.dto.CounselingResponseDto;
 import com.example.demo.entity.Counseling;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CounselingRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,12 +57,32 @@ public class CounselingService {
     }
 
     // 교사용: 자기 학급 학생들의 상담만 조회
-    public List<Counseling> getForTeacher(String school, int grade, int classNum) {
+    public List<CounselingResponseDto> getForTeacher(String school, int grade, int classNum) {
         List<User> students = userRepository.findBySchoolAndGradeAndClassNum(school, grade, classNum);
-        List<String> loginIds = students.stream()
-                .map(User::getLoginId)
-                .collect(Collectors.toList());
 
-        return counselingRepository.findByApplicantIn(loginIds);
+        // loginId → 이름 맵핑
+        Map<String, String> loginIdToName = students.stream()
+            .collect(Collectors.toMap(User::getLoginId, User::getName));
+
+        List<String> loginIds = students.stream()
+            .map(User::getLoginId)
+            .collect(Collectors.toList());
+
+        List<Counseling> counselingList = counselingRepository.findByApplicantIn(loginIds);
+
+        // Counseling → CounselingResponseDto 변환
+        return counselingList.stream().map(c -> {
+            CounselingResponseDto dto = new CounselingResponseDto();
+            dto.setId(c.getId());
+            dto.setCategory(c.getCategory());
+            dto.setApplicant(c.getApplicant());
+            dto.setApplicantName(loginIdToName.getOrDefault(c.getApplicant(), "알 수 없음"));
+            dto.setDate(c.getDate());
+            dto.setContent(c.getContent());
+            dto.setStatus(c.getStatus());
+            dto.setRejectionReason(c.getRejectionReason());
+            return dto;
+        }).collect(Collectors.toList());
     }
+
 }
