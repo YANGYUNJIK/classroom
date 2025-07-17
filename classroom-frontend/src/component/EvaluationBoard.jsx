@@ -28,11 +28,20 @@ export default function EvaluationBoard() {
           }
         );
 
-        setEvaluations(
-          response.data.sort(
-            (a, b) => new Date(a.endDate) - new Date(b.endDate)
-          )
-        );
+        const today = dayjs().startOf("day");
+
+        const sorted = response.data.sort((a, b) => {
+          const aDate = dayjs(a.endDate);
+          const bDate = dayjs(b.endDate);
+          const aPast = aDate.isBefore(today);
+          const bPast = bDate.isBefore(today);
+
+          if (aPast && !bPast) return 1;
+          if (!aPast && bPast) return -1;
+          return aDate.isAfter(bDate) ? 1 : -1;
+        });
+
+        setEvaluations(sorted);
       } catch (error) {
         console.error("평가 목록 불러오기 실패:", error);
       }
@@ -46,6 +55,14 @@ export default function EvaluationBoard() {
   };
 
   const handleAddEvaluation = async () => {
+    const today = dayjs().startOf("day");
+    const endDate = dayjs(newEval.endDate);
+
+    if (endDate.isBefore(today)) {
+      alert("❗ 마감일은 오늘 이후여야 합니다.");
+      return;
+    }
+
     try {
       const teacherInfo = {
         school: "푸른초등학교",
@@ -54,7 +71,6 @@ export default function EvaluationBoard() {
       };
 
       if (editingId) {
-        // ✅ 수정 요청
         const response = await axios.put(
           `http://localhost:8080/evaluations/${editingId}`,
           { ...newEval, ...teacherInfo }
@@ -62,25 +78,35 @@ export default function EvaluationBoard() {
 
         const updated = response.data;
         setEvaluations((prev) =>
-          [...prev.filter((e) => e.id !== editingId), updated].sort(
-            (a, b) => new Date(a.endDate) - new Date(b.endDate)
-          )
+          [...prev.filter((e) => e.id !== editingId), updated].sort((a, b) => {
+            const aDate = dayjs(a.endDate);
+            const bDate = dayjs(b.endDate);
+            const aPast = aDate.isBefore(today);
+            const bPast = bDate.isBefore(today);
+            if (aPast && !bPast) return 1;
+            if (!aPast && bPast) return -1;
+            return aDate.isAfter(bDate) ? 1 : -1;
+          })
         );
       } else {
-        // ✅ 새 평가 등록
         const response = await axios.post("http://localhost:8080/evaluations", {
           ...newEval,
           ...teacherInfo,
         });
         const savedEval = response.data;
         setEvaluations((prev) =>
-          [...prev, savedEval].sort(
-            (a, b) => new Date(a.endDate) - new Date(b.endDate)
-          )
+          [...prev, savedEval].sort((a, b) => {
+            const aDate = dayjs(a.endDate);
+            const bDate = dayjs(b.endDate);
+            const aPast = aDate.isBefore(today);
+            const bPast = bDate.isBefore(today);
+            if (aPast && !bPast) return 1;
+            if (!aPast && bPast) return -1;
+            return aDate.isAfter(bDate) ? 1 : -1;
+          })
         );
       }
 
-      // ✅ 초기화
       setNewEval({
         title: "",
         subject: "",
@@ -97,12 +123,10 @@ export default function EvaluationBoard() {
 
   const handleDelete = async (id) => {
     try {
-      console.log("삭제 시도 중:", id);
       await axios.delete(`/evaluations/${id}`);
-      console.log("삭제 성공!");
       setEvaluations((prev) => prev.filter((evalItem) => evalItem.id !== id));
     } catch (error) {
-      console.error("삭제 실패:", error.message); // 에러 메시지만 출력
+      console.error("삭제 실패:", error.message);
     }
   };
 
@@ -117,39 +141,44 @@ export default function EvaluationBoard() {
     <div className="relative">
       <h2 className="text-xl font-bold mb-4">📈 평가 관리 게시판</h2>
       <ul className="space-y-4">
-        {evaluations.map((item) => (
-          <li
-            key={item.id}
-            className="bg-white p-4 shadow rounded flex justify-between"
-          >
-            <div>
-              <h3 className="font-bold">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.subject}</p>
-              <p className="text-sm">범위: {item.scope}</p>
-              <p className="text-gray-700">{item.content}</p>
-              <p className="text-sm text-gray-500">
-                마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
-              </p>
-            </div>
-            <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(item.id)}
-                className="text-blue-500 hover:underline"
-              >
-                수정
-              </button>
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="text-red-500 hover:underline"
-              >
-                삭제
-              </button>
-            </div>
-          </li>
-        ))}
+        {evaluations.map((item) => {
+          const isPast = dayjs(item.endDate).isBefore(dayjs().startOf("day"));
+
+          return (
+            <li
+              key={item.id}
+              className={`bg-white p-4 shadow rounded flex justify-between transition-transform transform hover:shadow-lg hover:-translate-y-1 ${
+                isPast ? "opacity-50" : ""
+              }`}
+            >
+              <div>
+                <h3 className="font-bold">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.subject}</p>
+                <p className="text-sm">범위: {item.scope}</p>
+                <p className="text-gray-700">{item.content}</p>
+                <p className="text-sm text-gray-500">
+                  마감일: {dayjs(item.endDate).format("YYYY-MM-DD")}
+                </p>
+              </div>
+              <div className="space-x-2">
+                <button
+                  onClick={() => handleEdit(item.id)}
+                  className="text-blue-500 hover:underline"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  삭제
+                </button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
-      {/* 등록/수정 폼 모달 */}
       {formOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-md mx-auto p-6 rounded shadow-lg">
@@ -215,7 +244,6 @@ export default function EvaluationBoard() {
               >
                 취소
               </button>
-
               <button
                 onClick={handleAddEvaluation}
                 className="px-4 py-2 rounded bg-blue-500 text-white"

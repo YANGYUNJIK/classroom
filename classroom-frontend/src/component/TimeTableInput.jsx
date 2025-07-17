@@ -95,6 +95,55 @@ export default function TimeTableInput() {
     setAllRows(updatedAllRows);
   };
 
+  // ✅ 교시 삭제
+  const removeRow = (index) => {
+    const updatedRows = [...rows];
+    updatedRows.splice(index, 1); // 현재 화면에서 삭제
+    setRows(updatedRows);
+
+    // allRows에서도 정확한 global index 계산 후 삭제
+    let globalIndex = -1;
+    let matchedCount = 0;
+    for (let i = 0; i < allRows.length; i++) {
+      if (allRows[i].dayOfWeek === selectedDay) {
+        if (matchedCount === index) {
+          globalIndex = i;
+          break;
+        }
+        matchedCount++;
+      }
+    }
+
+    if (globalIndex !== -1) {
+      const newAllRows = [...allRows];
+      newAllRows.splice(globalIndex, 1);
+
+      // ✅ 삭제 후 교시 번호 재정렬
+      const reordered = newAllRows.map((row, idx, arr) => {
+        if (row.dayOfWeek === selectedDay) {
+          // 현재 selectedDay에 해당하는 것들만 재번호
+          const dayRows = arr.filter((r) => r.dayOfWeek === selectedDay);
+          let count = 1;
+          return arr.map((r) => {
+            if (r.dayOfWeek === selectedDay) {
+              return { ...r, period: `${count++}교시` };
+            }
+            return r;
+          });
+        } else {
+          return arr;
+        }
+      })[0]; // 위 map의 결과가 배열 1개짜리 배열이라 첫 번째 꺼 꺼냄
+
+      const finalAllRows = Array.isArray(reordered) ? reordered : newAllRows;
+      setAllRows(finalAllRows);
+
+      // 현재 화면에 보이는 rows도 다시 계산
+      const filtered = finalAllRows.filter((r) => r.dayOfWeek === selectedDay);
+      setRows(filtered);
+    }
+  };
+
   // ✅ 시간표 저장 (등록 or 수정 모두 포함)
   const handleSubmit = async () => {
     try {
@@ -203,6 +252,7 @@ export default function TimeTableInput() {
             <th className="border px-4 py-2">시작 시간</th>
             <th className="border px-4 py-2">끝 시간</th>
             <th className="border px-4 py-2">과목</th>
+            <th className="border px-4 py-2">삭제</th> {/* ✅ 삭제 열 추가 */}
           </tr>
         </thead>
         <tbody>
@@ -232,6 +282,14 @@ export default function TimeTableInput() {
                   onChange={(e) => handleChange(idx, "subject", e.target.value)}
                   className="w-full"
                 />
+              </td>
+              <td className="border px-2 py-2">
+                <button
+                  onClick={() => removeRow(idx)} // ✅ 삭제 핸들러 연결
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ❌
+                </button>
               </td>
             </tr>
           ))}

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import TimeTableInput from "../component/TimeTableInput";
 import EvaluationBoard from "../component/EvaluationBoard";
 import LearningBoard from "../component/LearningBoard";
-import SchoolScheduleCard from "../component/SchoolScheduleCard";
 import AttendanceBoard from "../component/AttendanceBoard";
 import ClassStatus from "../component/ClassStatus";
 
@@ -36,9 +35,7 @@ export default function TeacherManagePage() {
       case "학습 관리":
         return <LearningBoard user={user} />;
       case "상담 관리":
-        return <div> 상담이 올겁니다.</div>;
-      case "일정 관리":
-        return <SchoolScheduleCard user={user} />;
+        return <div> 제작중 </div>;
       default:
         return <div>메뉴를 선택하세요.</div>;
     }
@@ -76,7 +73,6 @@ export default function TeacherManagePage() {
             "평가 관리",
             "학습 관리",
             "상담 관리",
-            "일정 관리",
           ].map((menu) => (
             <button
               key={menu}
