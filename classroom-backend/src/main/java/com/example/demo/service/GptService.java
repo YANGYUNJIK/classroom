@@ -23,7 +23,7 @@ public class GptService {
     public Mono<String> getAdvice(String prompt) {
         return webClient.post()
                 .bodyValue(Map.of(
-                        "model", "gpt-4", // ✅ 여기 수정됨
+                        "model", "gpt-3.5-turbo", // ✅ 여기 수정됨
                         "messages", List.of(
                                 Map.of("role", "system", "content", "당신은 학생을 코칭해주는 교사입니다."),
                                 Map.of("role", "user", "content", prompt)
