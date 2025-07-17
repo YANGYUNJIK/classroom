@@ -5,6 +5,7 @@ import EvaluationBoard from "../component/EvaluationBoard";
 import LearningBoard from "../component/LearningBoard";
 import AttendanceBoard from "../component/AttendanceBoard";
 import ClassStatus from "../component/ClassStatus";
+import CounselingBoardTeacher from "../component/CounselingBoardTeacher";
 
 export default function TeacherManagePage() {
   const navigate = useNavigate();
@@ -35,7 +36,8 @@ export default function TeacherManagePage() {
       case "학습 관리":
         return <LearningBoard user={user} />;
       case "상담 관리":
-        return <div> 제작중 </div>;
+        // return <CounselingBoardTeacher user={user} />;
+        return <div>메뉴를 선택하세요.</div>;
       default:
         return <div>메뉴를 선택하세요.</div>;
     }

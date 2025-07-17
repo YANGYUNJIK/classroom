@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import StudentEvaluationBoard from "../component/StudentEvaluationBoard";
 import StudentLearningBoard from "../component/StudentLearningBoard";
+import CounselingBoardStudent from "../component/CounselingBoardStudent";
 
 export default function StudentManagePage() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function StudentManagePage() {
 
       <StudentEvaluationBoard />
       <StudentLearningBoard />
+      <CounselingBoardStudent />
     </div>
   );
 }
