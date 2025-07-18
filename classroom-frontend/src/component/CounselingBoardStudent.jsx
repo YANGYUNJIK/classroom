@@ -16,7 +16,7 @@ export default function CounselingBoardStudent() {
   const MAX_VISIBLE = 3;
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchCounselings = async () => {
     try {

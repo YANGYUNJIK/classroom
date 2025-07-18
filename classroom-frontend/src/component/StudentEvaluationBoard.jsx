@@ -13,7 +13,7 @@ export default function StudentEvaluationBoard() {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/evaluations/search`,
+          `${import.meta.env.VITE_API_BASE_URL}/evaluations/search`,
           { params: studentInfo }
         );
         const sorted = res.data.sort((a, b) =>

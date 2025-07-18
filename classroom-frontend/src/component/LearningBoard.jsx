@@ -342,7 +342,7 @@ export default function LearningBoard() {
   const [summaryMap, setSummaryMap] = useState({});
   const [selectedSummary, setSelectedSummary] = useState(null);
 
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const getTeacherInfo = () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");

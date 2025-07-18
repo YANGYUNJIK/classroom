@@ -287,7 +287,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function EvaluationBoard() {
   const [evaluations, setEvaluations] = useState([]);

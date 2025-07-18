@@ -133,7 +133,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function AttendanceBoard() {
   const user = JSON.parse(localStorage.getItem("user"));
