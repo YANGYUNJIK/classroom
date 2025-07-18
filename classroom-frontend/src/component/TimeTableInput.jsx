@@ -223,8 +223,112 @@ export default function TimeTableInput() {
     reader.readAsArrayBuffer(file);
   };
 
+  // return (
+  //   <div className="space-y-4">
+  //     <h2 className="text-xl font-bold mb-2">🗓 시간표</h2>
+
+  //     {/* 요일 선택 */}
+  //     <div className="flex items-center space-x-2 mb-2">
+  //       {["월", "화", "수", "목", "금"].map((day) => (
+  //         <button
+  //           key={day}
+  //           onClick={() => handleDayClick(day)}
+  //           className={`px-3 py-1 rounded border ${
+  //             selectedDay === day
+  //               ? "bg-blue-500 text-white"
+  //               : "bg-white text-black hover:bg-gray-200"
+  //           }`}
+  //         >
+  //           {day}
+  //         </button>
+  //       ))}
+  //     </div>
+
+  //     {/* 시간표 테이블 */}
+  //     <table className="w-full table-auto border">
+  //       <thead>
+  //         <tr className="bg-gray-200 text-center">
+  //           <th className="border px-4 py-2">교시</th>
+  //           <th className="border px-4 py-2">시작 시간</th>
+  //           <th className="border px-4 py-2">끝 시간</th>
+  //           <th className="border px-4 py-2">과목</th>
+  //           <th className="border px-4 py-2">삭제</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>
+  //         {rows.map((row, idx) => (
+  //           <tr key={idx} className="text-center">
+  //             <td className="border px-4 py-2">{row.period}</td>
+  //             <td className="border px-2 py-2">
+  //               <input
+  //                 type="time"
+  //                 value={row.start}
+  //                 onChange={(e) => handleChange(idx, "start", e.target.value)}
+  //                 className="w-full"
+  //               />
+  //             </td>
+  //             <td className="border px-2 py-2">
+  //               <input
+  //                 type="time"
+  //                 value={row.end}
+  //                 onChange={(e) => handleChange(idx, "end", e.target.value)}
+  //                 className="w-full"
+  //               />
+  //             </td>
+  //             <td className="border px-2 py-2">
+  //               <input
+  //                 type="text"
+  //                 value={row.subject}
+  //                 onChange={(e) => handleChange(idx, "subject", e.target.value)}
+  //                 className="w-full"
+  //               />
+  //             </td>
+  //             <td className="border px-2 py-2">
+  //               <button
+  //                 onClick={() => removeRow(idx)} // ✅ 삭제 핸들러 연결
+  //                 className="text-red-500 hover:text-red-700"
+  //               >
+  //                 ❌
+  //               </button>
+  //             </td>
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+
+  //     {/* 버튼들 */}
+  //     <div className="flex space-x-4">
+  //       <button
+  //         onClick={addRow}
+  //         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+  //       >
+  //         ➕ 교시 추가
+  //       </button>
+  //       <button
+  //         onClick={handleSubmit}
+  //         className={`${
+  //           hasTimeTable
+  //             ? "bg-yellow-500 hover:bg-yellow-600"
+  //             : "bg-green-500 hover:bg-green-600"
+  //         } text-white px-4 py-2 rounded`}
+  //       >
+  //         {hasTimeTable ? "✏️ 수정" : "✅ 제출"}
+  //       </button>
+  //       <label className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 cursor-pointer">
+  //         📥 엑셀 업로드
+  //         <input
+  //           type="file"
+  //           accept=".xlsx"
+  //           className="hidden"
+  //           onChange={handleFileUpload}
+  //         />
+  //       </label>
+  //     </div>
+  //   </div>
+  // );
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2 sm:px-4">
       <h2 className="text-xl font-bold mb-2">🗓 시간표</h2>
 
       {/* 요일 선택 */}
@@ -244,60 +348,66 @@ export default function TimeTableInput() {
         ))}
       </div>
 
-      {/* 시간표 테이블 */}
-      <table className="w-full table-auto border">
-        <thead>
-          <tr className="bg-gray-200 text-center">
-            <th className="border px-4 py-2">교시</th>
-            <th className="border px-4 py-2">시작 시간</th>
-            <th className="border px-4 py-2">끝 시간</th>
-            <th className="border px-4 py-2">과목</th>
-            <th className="border px-4 py-2">삭제</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx} className="text-center">
-              <td className="border px-4 py-2">{row.period}</td>
-              <td className="border px-2 py-2">
-                <input
-                  type="time"
-                  value={row.start}
-                  onChange={(e) => handleChange(idx, "start", e.target.value)}
-                  className="w-full"
-                />
-              </td>
-              <td className="border px-2 py-2">
-                <input
-                  type="time"
-                  value={row.end}
-                  onChange={(e) => handleChange(idx, "end", e.target.value)}
-                  className="w-full"
-                />
-              </td>
-              <td className="border px-2 py-2">
-                <input
-                  type="text"
-                  value={row.subject}
-                  onChange={(e) => handleChange(idx, "subject", e.target.value)}
-                  className="w-full"
-                />
-              </td>
-              <td className="border px-2 py-2">
-                <button
-                  onClick={() => removeRow(idx)} // ✅ 삭제 핸들러 연결
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ❌
-                </button>
-              </td>
+      {/* ✅ 테이블 감싸기 (모바일 대응) */}
+      <div className="overflow-x-auto sm:overflow-visible">
+        <table className="min-w-[560px] w-full table-auto border">
+          <thead>
+            <tr className="bg-gray-200 text-center">
+              <th className="border px-4 py-2">교시</th>
+              <th className="border px-4 py-2">시작 시간</th>
+              <th className="border px-4 py-2">끝 시간</th>
+              <th className="border px-4 py-2">과목</th>
+              <th className="border px-4 py-2">삭제</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => (
+              <tr key={idx} className="text-center">
+                <td className="border px-4 py-2 whitespace-nowrap">
+                  {row.period}
+                </td>
+                <td className="border px-2 py-2">
+                  <input
+                    type="time"
+                    value={row.start}
+                    onChange={(e) => handleChange(idx, "start", e.target.value)}
+                    className="w-full"
+                  />
+                </td>
+                <td className="border px-2 py-2">
+                  <input
+                    type="time"
+                    value={row.end}
+                    onChange={(e) => handleChange(idx, "end", e.target.value)}
+                    className="w-full"
+                  />
+                </td>
+                <td className="border px-2 py-2">
+                  <input
+                    type="text"
+                    value={row.subject}
+                    onChange={(e) =>
+                      handleChange(idx, "subject", e.target.value)
+                    }
+                    className="w-full"
+                  />
+                </td>
+                <td className="border px-2 py-2">
+                  <button
+                    onClick={() => removeRow(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    ❌
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* 버튼들 */}
-      <div className="flex space-x-4">
+      <div className="flex flex-wrap gap-2 mt-2">
         <button
           onClick={addRow}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
