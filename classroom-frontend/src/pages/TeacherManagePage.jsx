@@ -12,7 +12,6 @@ export default function TeacherManagePage() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ localStorage에서 선택된 메뉴 불러오기
   const savedMenu = localStorage.getItem("selectedMenu") || "시간표 등록";
   const [selectedMenu, setSelectedMenu] = useState(savedMenu);
 

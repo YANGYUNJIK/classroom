@@ -141,7 +141,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default function ClassStatus({ user }) {
   const [students, setStudents] = useState([]);
-  const [editingId, setEditingId] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({
     name: "",
     number: "",
