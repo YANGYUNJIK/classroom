@@ -31,28 +31,28 @@ export default function StudentMainPage() {
   }, []);
 
   // ✅ GPT 메시지 받아오기
-  // useEffect(() => {
-  //   const fetchAiAdvice = async () => {
-  //     try {
-  //       const res = await axios.get(`${BASE_URL}/evaluations/coaching`, {
-  //         params: {
-  //           school: user.school,
-  //           grade: user.grade,
-  //           classNum: user.classNum,
-  //         },
-  //       });
+  useEffect(() => {
+    const fetchAiAdvice = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/evaluations/coaching`, {
+          params: {
+            school: user.school,
+            grade: user.grade,
+            classNum: user.classNum,
+          },
+        });
 
-  //       setAiAdvice(res.data);
-  //     } catch (err) {
-  //       console.error("GPT 호출 중 오류 발생", err);
-  //       setAiAdvice({ message: "AI 코칭 메시지를 불러오는 데 실패했습니다." });
-  //     } finally {
-  //       setLoadingAdvice(false);
-  //     }
-  //   };
+        setAiAdvice(res.data);
+      } catch (err) {
+        console.error("GPT 호출 중 오류 발생", err);
+        setAiAdvice({ message: "AI 코칭 메시지를 불러오는 데 실패했습니다." });
+      } finally {
+        setLoadingAdvice(false);
+      }
+    };
 
-  //   fetchAiAdvice();
-  // }, []);
+    fetchAiAdvice();
+  }, []);
 
   const fetchCurrentPeriod = async () => {
     const nowTime = dayjs().format("HH:mm");
