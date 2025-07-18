@@ -16,6 +16,8 @@ export default function TeacherManagePage() {
   const savedMenu = localStorage.getItem("selectedMenu") || "시간표 등록";
   const [selectedMenu, setSelectedMenu] = useState(savedMenu);
 
+  const [tab, setTab] = useState("status");
+
   useEffect(() => {
     if (!user || user.role !== "teacher") {
       alert("접근 권한이 없습니다.");
@@ -42,95 +44,40 @@ export default function TeacherManagePage() {
     }
   };
 
-  // return (
-  //   <div className="min-h-screen flex flex-col bg-gray-100">
-  //     {/* 상단: 교사 정보 */}
-  //     <div className="bg-white shadow p-4 flex justify-between items-center">
-  //       <div>
-  //         <h2 className="text-xl font-bold">교사 관리 페이지</h2>
-  //         <p className="text-sm text-gray-600">
-  //           {user?.school} / {user?.name} (
-  //           {user?.grade && user?.classNum
-  //             ? `${user.grade}학년 ${user.classNum}반 / ${user.subject}`
-  //             : user?.subject}
-  //           )
-  //         </p>
-  //       </div>
-  //       <button
-  //         className="bg-red-500 text-white px-4 py-2 rounded"
-  //         onClick={() => {
-  //           localStorage.removeItem("user");
-  //           navigate("/login");
-  //         }}
-  //       >
-  //         로그아웃
-  //       </button>
-  //     </div>
-
-  //     {/* 메인 콘텐츠 */}
-  //     <div className="flex flex-1">
-  //       {/* 왼쪽 탭 */}
-  //       <div className="w-48 bg-white shadow-md p-4">
-  //         {[
-  //           "우리반 현황",
-  //           "시간표 등록",
-  //           "출석 현황",
-  //           "평가 관리",
-  //           "학습 관리",
-  //           "상담 관리",
-  //         ].map((menu) => (
-  //           <button
-  //             key={menu}
-  //             className={`block w-full text-left px-3 py-2 rounded mb-2 ${
-  //               selectedMenu === menu
-  //                 ? "bg-blue-500 text-white"
-  //                 : "bg-gray-100 hover:bg-gray-200"
-  //             }`}
-  //             onClick={() => {
-  //               setSelectedMenu(menu);
-  //               localStorage.setItem("selectedMenu", menu); // ✅ 선택한 탭 저장
-  //             }}
-  //           >
-  //             {menu}
-  //           </button>
-  //         ))}
-  //       </div>
-
-  //       {/* 오른쪽 콘텐츠 */}
-  //       <div className="flex-1 p-6">{renderContent()}</div>
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* 상단: 교사 정보 */}
-      <div className="bg-white shadow p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-        <div className="mb-2 sm:mb-0">
-          <h2 className="text-xl font-bold">교사 관리 페이지</h2>
-          <p className="text-sm text-gray-600">
-            {user?.school} / {user?.name} (
-            {user?.grade && user?.classNum
-              ? `${user.grade}학년 ${user.classNum}반 / ${user.subject}`
-              : user?.subject}
-            )
-          </p>
+      <div className="bg-white shadow p-4">
+        {/* 제목 + 로그아웃 버튼을 같은 줄, 중앙 정렬 */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold">교사 관리 페이지</h2>
+          </div>
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded"
+            onClick={() => {
+              localStorage.removeItem("user");
+              navigate("/login");
+            }}
+          >
+            로그아웃
+          </button>
         </div>
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded"
-          onClick={() => {
-            localStorage.removeItem("user");
-            navigate("/login");
-          }}
-        >
-          로그아웃
-        </button>
+
+        {/* 교사 정보는 제목 아래에 */}
+        <p className="text-sm text-gray-600 mt-1">
+          {user?.school} / {user?.name} (
+          {user?.grade && user?.classNum
+            ? `${user.grade}학년 ${user.classNum}반 / ${user.subject}`
+            : user?.subject}
+          )
+        </p>
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div className="flex flex-col sm:flex-row flex-1">
-        {/* 탭 메뉴: 모바일은 가로 스크롤 / PC는 사이드바 */}
-        <div className="bg-white shadow-md p-2 overflow-x-auto whitespace-nowrap sm:w-48 sm:min-w-[12rem] sm:block flex gap-2 sm:flex-col">
+      <div className="flex flex-1 flex-col md:flex-row">
+        {/* 메뉴: 모바일 상단 / 데스크톱 좌측 */}
+        <div className="md:w-48 bg-white shadow-md p-2 md:p-4 flex md:flex-col overflow-x-auto md:overflow-visible whitespace-nowrap">
           {[
             "우리반 현황",
             "시간표 등록",
@@ -141,7 +88,7 @@ export default function TeacherManagePage() {
           ].map((menu) => (
             <button
               key={menu}
-              className={`px-3 py-2 rounded text-sm shrink-0 ${
+              className={`px-3 py-2 rounded mb-2 md:mb-2 mr-2 md:mr-0 text-sm ${
                 selectedMenu === menu
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 hover:bg-gray-200"
@@ -157,7 +104,7 @@ export default function TeacherManagePage() {
         </div>
 
         {/* 오른쪽 콘텐츠 */}
-        <div className="flex-1 p-4">{renderContent()}</div>
+        <div className="flex-1 p-4 md:p-6">{renderContent()}</div>
       </div>
     </div>
   );
