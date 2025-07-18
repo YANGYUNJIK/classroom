@@ -407,24 +407,24 @@ export default function TimeTableInput() {
       </div>
 
       {/* 버튼들 */}
-      <div className="flex flex-wrap gap-2 mt-2">
+      <div className="flex flex-col sm:flex-row sm:justify-center sm:gap-4 gap-2 mt-4 w-full">
         <button
           onClick={addRow}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded text-sm sm:text-base hover:bg-blue-600"
         >
           ➕ 교시 추가
         </button>
         <button
           onClick={handleSubmit}
-          className={`${
+          className={`w-full sm:w-auto text-white px-4 py-2 rounded text-sm sm:text-base ${
             hasTimeTable
               ? "bg-yellow-500 hover:bg-yellow-600"
               : "bg-green-500 hover:bg-green-600"
-          } text-white px-4 py-2 rounded`}
+          }`}
         >
           {hasTimeTable ? "✏️ 수정" : "✅ 제출"}
         </button>
-        <label className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 cursor-pointer">
+        <label className="w-full sm:w-auto bg-gray-300 text-black px-4 py-2 rounded text-sm sm:text-base hover:bg-gray-400 cursor-pointer text-center">
           📥 엑셀 업로드
           <input
             type="file"
