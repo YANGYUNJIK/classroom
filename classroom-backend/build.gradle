@@ -34,3 +34,14 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// plain.jar은 생성하지 않도록
+tasks.named('jar') {
+	enabled = false
+}
+
+// 실행 가능한 bootJar 생성 (기본값은 build/libs/*.jar 이지만 명시적으로 지정 가능)
+tasks.named('bootJar') {
+	enabled = true
+	archiveFileName = 'app.jar' // 원하는 경우 변경 가능 (Railway는 알아서 실행)
+}
