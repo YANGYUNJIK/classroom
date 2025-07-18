@@ -27,8 +27,7 @@ export default function TeacherManagePage() {
   const renderContent = () => {
     switch (selectedMenu) {
       case "우리반 현황":
-        // return <ClassStatus user={user} />;
-        return <div>메뉴를 선택하세요.</div>;
+        return <ClassStatus user={user} />;
       case "시간표 등록":
         return <TimeTableInput user={user} />;
       case "출석 현황":
