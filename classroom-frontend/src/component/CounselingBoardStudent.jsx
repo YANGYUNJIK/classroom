@@ -82,7 +82,7 @@ export default function CounselingBoardStudent() {
     <div className="mt-10">
       {/* 제목 + 버튼 */}
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-bold">📚 상담 목록</h2>
+        <h2 className="text-lg font-bold">🫂 상담 목록</h2>
         <button
           onClick={() => setModalOpen(true)}
           className="bg-blue-500 text-white text-sm px-3 py-1.5 rounded"
@@ -98,7 +98,7 @@ export default function CounselingBoardStudent() {
             key={status}
             onClick={() => {
               setFilter(status);
-              setShowAll(false); // 필터 바뀌면 접기
+              setShowAll(false);
             }}
             className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
               filter === status ? "bg-blue-500 text-white" : "bg-gray-200"
@@ -114,35 +114,47 @@ export default function CounselingBoardStudent() {
         {visible.map((item) => (
           <div
             key={item.id}
-            className={`p-4 rounded-md shadow-sm ${
+            className={`p-4 rounded-xl shadow-sm border transition ${
               item.hopeTime && dayjs(item.hopeTime).isBefore(dayjs())
-                ? "bg-gray-100 text-gray-500"
+                ? "bg-gray-100 text-gray-400"
                 : "bg-white"
             }`}
           >
-            <p className="text-sm text-gray-500">
-              [{item.category}] {dayjs(item.date).format("YYYY-MM-DD")}
-            </p>
-            <p className="mt-1 text-sm">{item.content}</p>
-            <p className="text-sm text-gray-600 mt-1">
-              희망 시간:{" "}
-              {item.hopeTime
-                ? dayjs(item.hopeTime).format("YYYY-MM-DD HH:mm")
-                : "없음"}
-            </p>
-            <p className="mt-2 text-sm font-semibold">
-              상태:{" "}
-              {item.status === "거절됨" ? (
-                <span className="text-red-500">
-                  거절됨 - {item.rejectionReason}
-                </span>
-              ) : (
-                item.status
-              )}
-            </p>
-            <div className="mt-2 flex justify-end">
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">
+                [{item.category}] {dayjs(item.date).format("YYYY-MM-DD")}
+              </p>
+              <span className="text-xs font-semibold">
+                {item.status === "허락됨" && (
+                  <span className="text-green-600">✅ 허락됨</span>
+                )}
+                {item.status === "거절됨" && (
+                  <span className="text-red-500">
+                    ❌ 거절됨{" "}
+                    {item.rejectionReason && `- ${item.rejectionReason}`}
+                  </span>
+                )}
+                {item.status === "완료됨" && (
+                  <span className="text-gray-500">✔️ 완료됨</span>
+                )}
+                {!["허락됨", "거절됨", "완료됨"].includes(item.status) && (
+                  <span className="text-blue-500">🕐 {item.status}</span>
+                )}
+              </span>
+            </div>
+
+            <p className="mt-2 text-sm whitespace-pre-wrap">{item.content}</p>
+
+            {item.hopeTime && (
+              <div className="mt-2 text-sm text-gray-600">
+                상담 희망 시간:{" "}
+                {dayjs(item.hopeTime).format("YYYY-MM-DD HH:mm")}
+              </div>
+            )}
+
+            <div className="mt-3 flex justify-end">
               <button
-                className="text-sm text-red-500 underline"
+                className="text-xs text-red-500 underline"
                 onClick={() => handleDelete(item.id)}
               >
                 삭제
@@ -164,7 +176,7 @@ export default function CounselingBoardStudent() {
         </div>
       )}
 
-      {/* 상담 신청 모달 */}
+      {/* 모달은 그대로 유지 */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded w-[90%] max-w-sm">

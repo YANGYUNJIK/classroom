@@ -154,36 +154,51 @@ export default function StudentMainPage() {
         <h1 className="text-2xl font-bold mb-2 text-blue-600">
           🎓 학생 메인 페이지
         </h1>
-        <p className="text-base mb-2">
-          안녕하세요,{" "}
-          <span className="font-semibold text-gray-800">{user?.name}</span>님!
+
+        {/* 날짜 표시 */}
+        <p className="text-sm text-gray-500 mb-2">
+          📅 {dayjs().format("YYYY년 MM월 DD일 (dd)")}
         </p>
-        <div className="text-sm text-gray-600 mb-4 space-y-1">
-          <p>
+
+        {/* 학생 정보 박스 */}
+        <div className="bg-white shadow p-4 rounded-lg mb-4">
+          <p className="text-base mb-1">
+            안녕하세요,{" "}
+            <span className="font-semibold text-gray-800">{user?.name}</span>님!
+          </p>
+          <p className="text-sm text-gray-600">
             학교: <b>{user?.school}</b> / 학년: <b>{user?.grade}</b> / 반:{" "}
             <b>{user?.classNum}</b> / 번호: <b>{user?.number}</b>
           </p>
         </div>
 
         {/* 현재 수업 안내 박스 */}
-        <div className="bg-white border-l-4 border-green-500 shadow p-3 rounded-md text-sm">
+        <div className="bg-white border-l-4 border-green-500 shadow p-3 rounded-md text-sm flex justify-between items-center">
           {currentPeriod ? (
-            <p className="text-green-700 font-medium">
-              현재 수업: <b>{currentPeriod.period}</b> (
-              {currentSubject || "쉬는 시간"})
-            </p>
+            <>
+              <p className="text-green-700 font-medium">
+                현재 수업: <b>{currentPeriod.period}</b> (
+                {currentSubject || "쉬는 시간"})
+              </p>
+              {checked && (
+                <span className="text-green-600 font-semibold text-sm flex items-center">
+                  ✅ 출석 완료
+                </span>
+              )}
+            </>
           ) : (
-            <p className="text-gray-500">현재 수업 중인 교시가 없습니다.</p>
+            <p className="text-gray-500">
+              현재 수업 중인 교시가 없습니다. 다음 수업을 기다려주세요!
+            </p>
           )}
         </div>
 
-        {/* ✅ GPT 학습 코칭 박스 */}
-
+        {/* GPT 학습 코칭 박스 */}
         {aiAdvice && (
-          <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded-md shadow text-sm">
-            <p className="font-semibold text-yellow-800">📚 AI 학습 코칭</p>
+          <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-md shadow text-sm">
+            <p className="font-semibold text-yellow-900">🤖📚 AI 학습 코칭</p>
 
-            {/* 📌 평가 정보 먼저 출력 */}
+            {/* 평가 정보 */}
             <div className="mt-2 space-y-1 text-gray-700">
               {aiAdvice.title && (
                 <p>
@@ -224,7 +239,7 @@ export default function StudentMainPage() {
           className={`w-full py-3 text-sm font-semibold rounded ${
             checked
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600 text-white"
+              : "bg-emerald-500 hover:bg-emerald-600 text-white"
           }`}
           onClick={handleAttendance}
           disabled={checked}
@@ -238,7 +253,7 @@ export default function StudentMainPage() {
             navigate("/student/manage");
           }}
         >
-          들어가기 (평가·학습 안내)
+          📖 들어가기 (평가·학습 안내)
         </button>
 
         <button
