@@ -10,6 +10,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/learning-status")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 public class LearningStatusController {
 
     private final LearningStatusService learningStatusService;

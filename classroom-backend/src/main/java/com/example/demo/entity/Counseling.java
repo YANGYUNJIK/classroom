@@ -23,6 +23,9 @@ public class Counseling {
     private String content;          // 신청 내용
     private String status;           // 신청됨 / 허락됨 / 거절됨
     private String rejectionReason;  // 거절 사유 (선택)
+    private String school;
+    private int grade;
+    private int classNum;
 
     @Column
     private LocalDateTime hopeTime;

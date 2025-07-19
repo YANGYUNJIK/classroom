@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,8 +31,17 @@ public class CounselingService {
         counseling.setHopeTime(request.getHopeTime());
         counseling.setDate(LocalDate.now());
         counseling.setStatus("대기중");
+
+        // ✅ 여기에 학급 정보도 User에서 찾아서 저장
+        Optional<User> userOpt = userRepository.findByLoginId(request.getApplicant());
+        userOpt.ifPresent(user -> {
+            counseling.setSchool(user.getSchool());
+            counseling.setGrade(user.getGrade());
+            counseling.setClassNum(user.getClassNum());
+        });
         counselingRepository.save(counseling);
     }
+
 
     // 학생용: 본인 신청 상담 조회
     public List<Counseling> getByApplicant(String applicant) {

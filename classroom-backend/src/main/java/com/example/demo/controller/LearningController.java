@@ -9,7 +9,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/learnings")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 public class LearningController {
 
     private final LearningService learningService;
