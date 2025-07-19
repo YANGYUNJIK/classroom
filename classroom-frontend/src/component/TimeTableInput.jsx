@@ -177,7 +177,7 @@ export default function TimeTableInput() {
       parsed.forEach((row) => {
         const start = row["시작 시간"];
         const end = row["끝 시간"];
-        ["월", "화", "수", "목", "금"].forEach((day) => {
+        ["월", "화", "수", "목", "금", "토", "일"].forEach((day) => {
           if (row[day]) {
             dayMap[day].push({
               subject: row[day],
@@ -217,7 +217,7 @@ export default function TimeTableInput() {
       <h2 className="text-xl font-bold mb-2">🗓 시간표</h2>
 
       <div className="flex items-center space-x-2 mb-2">
-        {["월", "화", "수", "목", "금"].map((day) => (
+        {["월", "화", "수", "목", "금", "토", "일"].map((day) => (
           <button
             key={day}
             onClick={() => handleDayClick(day)}
