@@ -54,6 +54,29 @@ export default function StudentMainPage() {
     fetchAiAdvice();
   }, []);
 
+  // const fetchCurrentPeriod = async () => {
+  //   const nowTime = dayjs().format("HH:mm");
+  //   const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
+
+  //   try {
+  //     const res = await axios.get(`${BASE_URL}/api/timetable/current`, {
+  //       params: {
+  //         school: user.school,
+  //         grade: user.grade,
+  //         classNum: user.classNum,
+  //         dayOfWeek,
+  //         time: nowTime,
+  //       },
+  //     });
+
+  //     setCurrentPeriod(res.data);
+  //     setCurrentSubject(res.data.subject || null);
+  //     checkAttendance(); // ✅ 현재 교시 확인 후 출석 상태 체크
+  //   } catch (err) {
+  //     console.error("현재 교시 불러오기 실패", err);
+  //   }
+  // };
+
   const fetchCurrentPeriod = async () => {
     const nowTime = dayjs().format("HH:mm");
     const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()];
@@ -71,32 +94,57 @@ export default function StudentMainPage() {
 
       setCurrentPeriod(res.data);
       setCurrentSubject(res.data.subject || null);
-      checkAttendance(); // ✅ 현재 교시 확인 후 출석 상태 체크
+      checkAttendance(res.data); // ✅ currentPeriod 바로 전달
     } catch (err) {
       console.error("현재 교시 불러오기 실패", err);
     }
   };
 
-  const checkAttendance = async () => {
-    if (!currentPeriod) return;
+  // const checkAttendance = async () => {
+  //   if (!currentPeriod) return;
+
+  //   const loginId = localStorage.getItem("loginId");
+  //   const periodNumber = currentPeriod.period.replace(/[^0-9]/g, ""); // "4교시" → "4"
+
+  //   try {
+  //     const res = await axios.get(`${BASE_URL}/api/attendance/check`, {
+  //       params: {
+  //         studentLoginId: loginId,
+  //         teacherId: currentPeriod.teacherId,
+  //         period: periodNumber,
+  //         // dayOfWeek: dayjs().format("ddd"),
+  //         dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
+  //         date: dayjs().format("YYYY-MM-DD"),
+  //       },
+  //     });
+
+  //     if (res.data.status && res.data.status !== "미출석") {
+  //       setChecked(true);
+  //     }
+  //   } catch (err) {
+  //     console.error("✅ 출석 상태 확인 실패:", err);
+  //   }
+  // };
+
+  const checkAttendance = async (periodData) => {
+    if (!periodData) return;
 
     const loginId = localStorage.getItem("loginId");
-    const periodNumber = currentPeriod.period.replace(/[^0-9]/g, ""); // "4교시" → "4"
+    const periodNumber = periodData.period.replace(/[^0-9]/g, "");
 
     try {
       const res = await axios.get(`${BASE_URL}/api/attendance/check`, {
         params: {
           studentLoginId: loginId,
-          teacherId: currentPeriod.teacherId,
+          teacherId: periodData.teacherId,
           period: periodNumber,
-          // dayOfWeek: dayjs().format("ddd"),
           dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
           date: dayjs().format("YYYY-MM-DD"),
         },
       });
 
       if (res.data.status && res.data.status !== "미출석") {
-        setChecked(true);
+        setChecked(true); // ✅ 새로고침해도 출석 상태 유지
       }
     } catch (err) {
       console.error("✅ 출석 상태 확인 실패:", err);
