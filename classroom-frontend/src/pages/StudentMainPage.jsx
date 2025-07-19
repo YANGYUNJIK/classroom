@@ -89,7 +89,8 @@ export default function StudentMainPage() {
           studentLoginId: loginId,
           teacherId: currentPeriod.teacherId,
           period: periodNumber,
-          dayOfWeek: dayjs().format("ddd"),
+          // dayOfWeek: dayjs().format("ddd"),
+          dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
           date: dayjs().format("YYYY-MM-DD"),
         },
       });
@@ -115,7 +116,8 @@ export default function StudentMainPage() {
         studentLoginId: loginId,
         teacherId: currentPeriod.teacherId,
         period: currentPeriod.period,
-        dayOfWeek: dayjs().format("ddd"),
+        // dayOfWeek: dayjs().format("ddd"),
+        dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
         date: dayjs().format("YYYY-MM-DD"),
         status: "출석",
       };
