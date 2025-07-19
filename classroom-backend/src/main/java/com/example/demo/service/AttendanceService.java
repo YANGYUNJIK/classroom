@@ -49,7 +49,7 @@ public class AttendanceService {
         Attendance record = new Attendance();
         record.setDate(targetDate);
         record.setDayOfWeek(request.getDayOfWeek());
-        record.setPeriod(request.getPeriod());
+        record.setPeriod(request.getPeriod() + "교시");
         record.setStudent(student);
         record.setTeacher(teacher);
         record.setStatus(request.getStatus() != null ? request.getStatus() : "출석");
