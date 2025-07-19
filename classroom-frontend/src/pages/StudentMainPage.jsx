@@ -103,10 +103,48 @@ export default function StudentMainPage() {
     }
   };
 
+  // const handleAttendance = async () => {
+  //   const loginId = localStorage.getItem("loginId");
+
+  //   console.log("🧪 loginId from localStorage:", loginId);
+
+  //   if (!currentPeriod) {
+  //     alert("현재 수업 시간이 아닙니다.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const requestData = {
+  //       studentLoginId: loginId,
+  //       teacherId: currentPeriod.teacherId,
+  //       period: currentPeriod.period,
+  //       // dayOfWeek: dayjs().format("ddd"),
+  //       dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
+  //       date: dayjs().format("YYYY-MM-DD"),
+  //       status: "출석",
+  //     };
+
+  //     await axios.post(`${BASE_URL}/api/attendance`, requestData);
+  //     setChecked(true);
+  //     alert("출석 체크 완료!");
+  //   } catch (err) {
+  //     console.error("출석 체크 실패", err);
+
+  //     if (
+  //       err.response &&
+  //       err.response.data &&
+  //       err.response.data.message?.includes("이미 출석")
+  //     ) {
+  //       alert("이미 출석 체크하셨습니다!");
+  //       setChecked(true);
+  //     } else {
+  //       alert("출석 체크에 실패했습니다.");
+  //     }
+  //   }
+  // };
+
   const handleAttendance = async () => {
     const loginId = localStorage.getItem("loginId");
-
-    console.log("🧪 loginId from localStorage:", loginId);
 
     if (!currentPeriod) {
       alert("현재 수업 시간이 아닙니다.");
@@ -118,7 +156,6 @@ export default function StudentMainPage() {
         studentLoginId: loginId,
         teacherId: currentPeriod.teacherId,
         period: currentPeriod.period,
-        // dayOfWeek: dayjs().format("ddd"),
         dayOfWeek: ["일", "월", "화", "수", "목", "금", "토"][dayjs().day()],
         date: dayjs().format("YYYY-MM-DD"),
         status: "출석",
@@ -130,15 +167,15 @@ export default function StudentMainPage() {
     } catch (err) {
       console.error("출석 체크 실패", err);
 
-      if (
-        err.response &&
-        err.response.data &&
-        err.response.data.message?.includes("이미 출석")
-      ) {
+      const errorMessage = err.response?.data?.message || "";
+
+      // ✅ 서버 메시지가 "이미 출석 처리되었습니다"인 경우
+      if (errorMessage.includes("이미 출석")) {
         alert("이미 출석 체크하셨습니다!");
         setChecked(true);
       } else {
-        alert("출석 체크에 실패했습니다.");
+        // ✅ 그 외 오류에 대해서만 실패 메시지
+        alert(`출석 체크에 실패했습니다.\n(${errorMessage})`);
       }
     }
   };
