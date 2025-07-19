@@ -35,7 +35,7 @@ export default function TimeTableInput() {
         const data = res.data;
         setAllRows(data);
 
-        console.log("백엔드 응답:", response.data);
+        //console.log("백엔드 응답:", response.data);
 
         setHasTimeTable(data.length > 0);
 
