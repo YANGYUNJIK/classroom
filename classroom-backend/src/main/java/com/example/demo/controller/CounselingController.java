@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173") // 또는 Netlify 도메인
+// @CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/counselings")

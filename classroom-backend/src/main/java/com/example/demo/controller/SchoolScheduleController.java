@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/school-schedule")
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 public class SchoolScheduleController {
 
     private final SchoolScheduleService schoolScheduleService;

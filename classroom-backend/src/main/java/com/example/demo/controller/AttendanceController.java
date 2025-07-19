@@ -10,7 +10,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/attendance")
-@CrossOrigin(origins = "http://localhost:5173")
+// @CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 @RequiredArgsConstructor
 public class AttendanceController {
 

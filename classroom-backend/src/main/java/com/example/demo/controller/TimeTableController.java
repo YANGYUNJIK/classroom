@@ -11,7 +11,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/timetable")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://classroomate.netlify.app")
 public class TimeTableController {
 
     private final TimeTableService timeTableService;
