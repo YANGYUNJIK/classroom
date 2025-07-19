@@ -104,6 +104,7 @@ export default function StudentMainPage() {
   };
 
   const handleAttendance = async () => {
+    console.log("🧪 loginId from localStorage:", loginId);
     const loginId = localStorage.getItem("loginId");
 
     if (!currentPeriod) {
