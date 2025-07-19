@@ -172,7 +172,7 @@ export default function TimeTableInput() {
       const ws = wb.Sheets[wb.SheetNames[0]];
       const parsed = XLSX.utils.sheet_to_json(ws, { defval: "" });
 
-      const dayMap = { 월: [], 화: [], 수: [], 목: [], 금: [] };
+      const dayMap = { 월: [], 화: [], 수: [], 목: [], 금: [], 토: [], 일: [] };
 
       parsed.forEach((row) => {
         const start = row["시작 시간"];
