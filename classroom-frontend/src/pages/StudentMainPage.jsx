@@ -104,8 +104,9 @@ export default function StudentMainPage() {
   };
 
   const handleAttendance = async () => {
-    console.log("🧪 loginId from localStorage:", loginId);
     const loginId = localStorage.getItem("loginId");
+
+    console.log("🧪 loginId from localStorage:", loginId);
 
     if (!currentPeriod) {
       alert("현재 수업 시간이 아닙니다.");
